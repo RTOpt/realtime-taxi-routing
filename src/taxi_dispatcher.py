@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 from multimodalsim.optimization.dispatcher import Dispatcher, OptimizedRoutePlan
 from src.Offline_solver import (create_model, define_objective_total_profit, define_objective_total_customers,
                                 define_objective_total_wait_time, solve_offline_model)
-from src.Solution_file import (define_obj_total_profit, define_obj_total_wait_time)
 
 
 
@@ -162,11 +161,11 @@ class TaxiDispatcher(Dispatcher):
 
             # add objective
             if self.__objective == Objectives.PROFIT:
-                define_obj_total_profit(X_var, Y_var, model, vehicles, trips, costs)
+                define_objective_total_profit(X_var, Y_var, model, vehicles, trips, costs)
             elif self.__objective == Objectives.TOTAL_CUSTOMERS:
                 define_objective_total_customers(Z_var, model, trips)
             elif self.__objective == Objectives.WAIT_TIME:
-                define_obj_total_wait_time(U_var, Z_var, model, trips)
+                define_objective_total_wait_time(U_var, Z_var, model, trips)
 
             # solve and get solution
             self.__objective_value, veh_trips_assignments_list = solve_offline_model(model, trips, vehicles, Y_var,
