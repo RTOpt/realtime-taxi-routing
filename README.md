@@ -7,10 +7,10 @@ The Taxi routing System is a solution designed to simulate and optimize taxi dis
 - **data_reader.py**: Handles input data reading and preprocessing.
 - **RideRequest.py**: Defines the `RideRequest` class and associated methods.
 - **utilities.py**: Provides utility functions used across the system.
-- - **taxi_dispatcher.py**: Core module where the dispatching logic and algorithms are implemented.
+- **taxi_dispatcher.py**: Core module where the dispatching logic and algorithms are implemented.
 - **Offline_solver.py**: Contains the logic for solving dispatch scenarios in offline mode, when all the requests are known in advance.
 - **run_simulation.py**: Facilitates running simulations of the taxi dispatching system under various conditions.
-- - **Run_Example.py**: An example script demonstrating how to run a basic instance of the dispatch system.
+- **Run_Example.py**: An example script demonstrating how to run a basic instance of the dispatch system.
 - **Run_Tests.py**: Executes a series of tests to validate the correctness and performance of the system.
 
 
