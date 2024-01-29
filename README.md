@@ -132,6 +132,8 @@ Gurobi is an optimization solver used in various industries and academic researc
 
 4. **Set Up the Gurobi Environment**:
    - Ensure that your Python environment is set up to recognize Gurobi. If you're using a virtual environment for your project, you may need to update it with Gurobi's Python bindings.
+   ```bash
+    pip install gurobi
 
 For the most up-to-date and detailed installation instructions, please refer to the [official Gurobi documentation](https://www.gurobi.com/documentation/).
 
