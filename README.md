@@ -32,7 +32,7 @@ The simulation process is categorized into three main phases: Data Preparation, 
 This phase involves reading input data, visualizing the network, and preparing vehicles and trips for the simulation.
 
 - **Data Reading**:
-  - Utilize a `TaxiDataReader` to read in taxi requests, vehicle information, and the network graph.
+  Utilize a `TaxiDataReader` to read in taxi requests, vehicle information, and the network graph.
     ```python
     data_reader = TaxiDataReader(requests_file_path, vehicles_file_path, graph_file_path, vehicles_end_time=100000)
     vehicles, routes_by_vehicle_id = data_reader.get_json_vehicles()
@@ -40,7 +40,7 @@ This phase involves reading input data, visualizing the network, and preparing v
     ```
 
 - **Network Visualization**:
-  - Extract and draw the network graph for a visual representation of the network's structure.
+  Extract and draw the network graph for a visual representation of the network's structure.
     ```python
     network_graph = data_reader.get_json_graph()
     draw_network(network_graph, graph_file_path)
@@ -50,19 +50,19 @@ This phase involves reading input data, visualizing the network, and preparing v
 Set up the core components of the simulation, including the dispatcher, optimization model, and environment observer. Insidee Dispatcher class there are three main methods for prearing inputs, optimizing and creating route plans.
 
 - **Dispatcher Setup**:
-  - Initialize a `TaxiDispatcher` with the network graph, chosen algorithm, and objective.
+  Initialize a `TaxiDispatcher` with the network graph, chosen algorithm, and objective.
     ```python
     dispatcher = TaxiDispatcher(network_graph, algorithm, objective)
     ```
 
 - **Optimization Setup**:
-  - Create an `Optimization` object with the dispatcher to manage trip splitting and route assignment.
+  Create an `Optimization` object with the dispatcher to manage trip splitting and route assignment.
     ```python
     opt = Optimization(dispatcher)
     ```
 
 - **Environment Observer**:
-  - Initialize a `StandardEnvironmentObserver` for simulation monitoring and visualization.
+  Initialize a `StandardEnvironmentObserver` for simulation monitoring and visualization.
     ```python
     environment_observer = StandardEnvironmentObserver()
     ```
@@ -71,13 +71,13 @@ Set up the core components of the simulation, including the dispatcher, optimiza
 Set up the simulation with all components and execute it.
 
 - **Simulation Initialization**:
-  - Create a `Simulation` object with the optimization model, trips, vehicles, routes, network graph, and environment observer. 
+  Create a `Simulation` object with the optimization model, trips, vehicles, routes, network graph, and environment observer. 
     ```python
     simulation = Simulation(opt, trips, vehicles, routes_by_vehicle_id, network=network_graph, environment_observer=environment_observer)
     ```
 
 - **Simulation Execution**:
-  - Start the simulation process by calling the `simulate` method, managing the state and utilizing the environment observer.
+  Start the simulation process by calling the `simulate` method, managing the state and utilizing the environment observer.
     ```python
     simulation.simulate()
     ```
@@ -95,12 +95,16 @@ Set up the simulation with all components and execute it.
 2. **Navigate to the Package Directory**: Replace [project-directory] with the address of the place you have saved the project.
    ```bash
    cd [project-directory]/realtime-taxi-routing/multimodal-simulator
-
-3. **Installing the `multimodalsim` Package**: To install the package, execute the following command:
+   
+3. **Installing Dependencies**: Required Packages are listed in the `requirements.txt` file. With your virtual environment activated, install the required packages using pip:
+    ```bash
+    pip install -r requirements.txt
+    
+4. **Installing the `multimodalsim` Package**: To install the package, execute the following command:
     ```bash
     pip install multimodalsim
 
-4. **Create a Virtual Environment (Optional but Recommended)**:
+5. **Create a Virtual Environment (Optional but Recommended)**:
 It's a best practice to create a virtual environment for your project to avoid conflicts with system-wide Python packages. Use the following commands:
     ```bash
     python -m venv venv
