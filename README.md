@@ -92,16 +92,17 @@ Set up the simulation with all components and execute it.
    ```bash
    git clone https://github.com/RTOpt/realtime-taxi-routing.git
 
-
-2. **Navigate to the Package Directory**: Replace [project-directory] with the address of the place you have saved the project.
-   ```bash
-   cd [project-directory]/realtime-taxi-routing/multimodal-simulator
-   
-3. **Create a Virtual Environment (Optional but Recommended)**:
+2. **Create a Virtual Environment (Optional but Recommended)**:
 It's a best practice to create a virtual environment for your project to avoid conflicts with system-wide Python packages. Use the following commands:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   
+3. **Navigate to the Package Directory**: Replace [project-directory] with the address of the place you have saved the project.
+   ```bash
+   cd [project-directory]/realtime-taxi-routing/multimodal-simulator
+   
+
    
 4. **Installing Dependencies**: Required Packages are listed in the `requirements.txt` file. With your virtual environment activated, install the required packages using pip:
     ```bash
