@@ -1,6 +1,6 @@
 # Realtime Taxi routing Overview
 
-The Taxi routing System is a solution designed to simulate and optimize taxi dispatching operations. This project requires thee `multimodalsim` package for simulation and optimization of multimodal transportation systems. 
+The Taxi routing System is a solution designed to simulate and optimize taxi dispatching operations. This project requires the `multimodalsim` package for simulation and optimization of multimodal transportation systems. 
 
 ## Modules
 
