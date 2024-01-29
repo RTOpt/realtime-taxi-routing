@@ -48,7 +48,7 @@ This phase involves reading input data, visualizing the network, and preparing v
   - Extract and draw the network graph for a visual representation of the network's structure.
     ```python
     network_graph = data_reader.get_json_graph()
-    ut.draw_network(network_graph, graph_file_path)
+    draw_network(network_graph, graph_file_path)
     ```
     
 ### 2. Initialize Simulation Components

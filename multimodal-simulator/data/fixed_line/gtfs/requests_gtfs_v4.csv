@@ -1,0 +1,5 @@
+ID;origin;destination;nb_passengers;release_time;ready_time;due_time
+1;1;6;1;57300;57600;62700
+2;2;5;1;57600;57600;62700
+3;2;4;1;57840;57900;62700
+4;3;6;1;57900;58200;62700
