@@ -18,11 +18,6 @@ The Taxi routing System is a solution designed to simulate and optimize taxi dis
 
 The `multimodalsim` package is a Python library for simulating multi-modal discrete event transportation systems, focusing on the dynamics between trips (passengers) and vehicles within a network. It enables the comprehensive setup, execution, and analysis of simulations to evaluate transportation strategies.
 
-### Setup
-To install the package, ensure that Python is installed on your system. Clone the repository or download the source code, open a terminal in the `multimodal-simulator` directory and execute the following command:
-
-    python setup.py install
-
 ### Key Components
 - **Agents**: Simulates two primary agents: trips (passengers) and vehicles. Trips are modeled as `Trip` objects with detailed attributes, including origin, destination, and timing constraints. Vehicles modeled as `Vehicle` objects, transport passengers based on the simulation's dynamics.
 
@@ -86,3 +81,51 @@ Set up the simulation with all components and execute it.
     ```python
     simulation.simulate()
     ```
+
+# Installation and Setup
+
+## Prerequisites
+- Python 3.x: The system is developed and tested with Python 3.x. Ensure you have it installed on your system. You can download it from [the official Python website](https://www.python.org/).
+
+## Setting Up the Environment
+1. **Clone the Repository**: Start by cloning the repository to your local machine. Use the following command:
+   ```bash
+   git clone https://github.com/RTOpt/realtime-taxi-routing.git
+
+2. **Navigate to the Package Directory**: Replace [project-directory] with the address of the place you have saved the project.
+   ```bash
+   cd [project-directory]/realtime-taxi-routing/multimodal-simulator
+
+3. **Installing the `multimodalsim` Package**: To install the package, execute the following command:
+    ```bash
+    pip install multimodalsim
+
+4. **Create a Virtual Environment (Optional but Recommended)**:
+It's a best practice to create a virtual environment for your project to avoid conflicts with system-wide Python packages. Use the following commands:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+
+## Installing Gurobi and Obtaining a Student License
+
+Gurobi is an optimization solver used in various industries and academic research. Follow the steps below to install Gurobi and obtain a student license:
+
+1. **Register and Download Gurobi**:
+   - Visit the [Gurobi Download Center](https://www.gurobi.com/downloads/gurobi-software/).
+   - Register for an account if you don't already have one. Ensure you use your academic email address to qualify for the free academic license.
+   - Download the appropriate version of Gurobi for your operating system.
+
+2. **Install Gurobi**:
+   - Follow the installation instructions specific to your operating system provided in the Gurobi documentation.
+
+3. **Obtain a Free Academic License**:
+   - Visit the [Gurobi License Center](https://www.gurobi.com/downloads/end-user-license-agreement-academic/).
+   - Apply for a free academic license. You will need to provide your university email address and verify your academic status.
+   - Follow the instructions to activate your license. Typically, this involves running a command in your terminal or command prompt.
+
+4. **Set Up the Gurobi Environment**:
+   - Ensure that your Python environment is set up to recognize Gurobi. If you're using a virtual environment for your project, you may need to update it with Gurobi's Python bindings.
+
+For the most up-to-date and detailed installation instructions, please refer to the [official Gurobi documentation](https://www.gurobi.com/documentation/).
+
+**Note**: The process for obtaining a Gurobi license may change, and the terms of use for Gurobi software are subject to Gurobi's licensing agreement. Ensure you comply with all license terms and conditions.
