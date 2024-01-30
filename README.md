@@ -108,7 +108,8 @@ It's a best practice to create a virtual environment for your project to avoid c
     ```bash
     cd multimodal-simulator/python
     python setup.py install
-5. **Using the Virtual Environment as the Python Interpreter**: After setting up the virtual environment.
+   
+5. **Using the Virtual Environment as the Python Interpreter**: After setting up the virtual environment, it's essential to ensure that your IDE or code editor is configured to use the Python interpreter from the virtual environment. Follow the steps below to select the Python interpreter from the virtual environment
 
 #### PyCharm:
 1. Open your project in PyCharm.
