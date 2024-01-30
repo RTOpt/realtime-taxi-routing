@@ -29,7 +29,7 @@ if __name__ == '__main__':
     """
     algorithm = Algorithm.MIP_SOLVER
     solution_mode = SolutionMode.OFFLINE
-    objective = Objectives.PROFIT
+    objective = Objectives.TOTAL_CUSTOMERS
     time_window = 3  # Time window in minutes
 
 

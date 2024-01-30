@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
     # Convert results to DataFrame
     df = pd.DataFrame(results)
-    df = df.sort_values(by=['# Trips', 'Time window (min)', 'Objective'])
+    df = df.sort_values(by=['# Trips', 'Time window (min)'])
 
     # Save DataFrame to CSV
     csv_file_path = "data/Instances/simulation_results.csv"

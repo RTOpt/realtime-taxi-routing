@@ -93,24 +93,34 @@ Set up the simulation with all components and execute it.
    git clone https://github.com/RTOpt/realtime-taxi-routing.git
 
 2. **Create a Virtual Environment (Optional but Recommended)**:
-It's a best practice to create a virtual environment for your project to avoid conflicts with system-wide Python packages. Use the following commands:
+It's a best practice to create a virtual environment for your project to avoid conflicts with system-wide Python packages. Use the following commands to navigate to the project directory and create the environment. Replace [project-directory] with the address of the place you have saved the project.
     ```bash
+    cd [project-directory]/realtime-taxi-routing
     python -m venv venv
     source venv/bin/activate  # On Windows use `venv\Scripts\activate`
    
-3. **Navigate to the Package Directory**: Replace [project-directory] with the address of the place you have saved the project.
-   ```bash
-   cd [project-directory]/realtime-taxi-routing/multimodal-simulator
+3. **Instal `Setuptools` package**: Install `Setuptools` package if it is not installed on your system:
+    ```bash
+    pip install --upgrade pip
+    pip install setuptools
    
+4. **Installing the `multimodalsim` Package**: Execute the following commands to navigate to the package directory and install the package and requited dependencies:
+    ```bash
+    cd multimodal-simulator/python
+    python setup.py install
+5. **Using the Virtual Environment as the Python Interpreter**: After setting up the virtual environment.
 
-   
-4. **Installing Dependencies**: Required Packages are listed in the `requirements.txt` file. With your virtual environment activated, install the required packages using pip:
-    ```bash
-    pip install -r requirements.txt
-    
-5. **Installing the `multimodalsim` Package**: To install the package, execute the following command:
-    ```bash
-    pip install multimodalsim
+#### PyCharm:
+1. Open your project in PyCharm.
+2. Go to `File` > `Settings`.
+3. Navigate to `Project: your-project-name` > `Python Interpreter`.
+4. Click on `Add Interpreter`, and choose the Python interpreter located in your virtual environment (typically under the `venv/bin/python` path).
+
+#### Visual Studio Code:
+1. Open your project folder in VS Code.
+2. Press `Ctrl+Shift+P` (or `Cmd+Shift+P` on macOS) to open the command palette.
+3. Type `Python: Select Interpreter` and select the command.
+4. Choose the interpreter from your virtual environment (usually found in the `.venv` or `venv` folder).
 
 
 ## Installing Gurobi and Obtaining a Student License
@@ -123,7 +133,7 @@ Gurobi is an optimization solver used in various industries and academic researc
    - Download the appropriate version of Gurobi for your operating system.
 
 2. **Install Gurobi**:
-   - Follow the installation instructions specific to your operating system provided in the Gurobi documentation.
+   - Follow the [Software Installation Guide](https://support.gurobi.com/hc/en-us/articles/14799677517585) specific to your operating system to install Gurobi.
 
 3. **Obtain a Free Academic License**:
    - Visit the [Gurobi License Center](https://www.gurobi.com/downloads/end-user-license-agreement-academic/).
@@ -133,7 +143,7 @@ Gurobi is an optimization solver used in various industries and academic researc
 4. **Set Up the Gurobi Environment**:
    - Ensure that your Python environment is set up to recognize Gurobi. If you're using a virtual environment for your project, you may need to update it with Gurobi's Python bindings.
    ```bash
-    pip install gurobipy
+    python -m pip install gurobipy
 
 For the most up-to-date and detailed installation instructions, please refer to the [official Gurobi documentation](https://www.gurobi.com/documentation/).
 
