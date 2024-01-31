@@ -101,8 +101,7 @@ It's a best practice to create a virtual environment for your project to avoid c
    
 3. **Instal `Setuptools` package**: Install `Setuptools` package if it is not installed on your system:
     ```bash
-    pip install --upgrade pip
-    pip install setuptools
+    pip install wheel setuptools pip --upgrade
    
 4. **Installing the `multimodalsim` Package**: Execute the following commands to navigate to the package directory and install the package and requited dependencies:
     ```bash
