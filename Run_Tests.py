@@ -3,11 +3,11 @@ import logging
 import pandas as pd
 
 from src.utilities import SolutionMode, Algorithm, Objectives, print_dict_as_table
-from src.run_simulation import run_simulation
+from src.run_simulation import run_taxi_simulation
 
 
 if __name__ == '__main__':
-    logging.getLogger().setLevel(logging.INFO)
+    logging.getLogger().setLevel(logging.WARN)  # INFO
 
     # define paths
     base_folder = "data/Instances"
@@ -36,20 +36,23 @@ if __name__ == '__main__':
         if os.path.isdir(test_path):
             for objective in Objectives:
                 for time_window in time_windows:
-                    trips_count, vehicles_count, output_dict = run_simulation(test_path, graph_file_path, algorithm,
-                                                                              objective, solution_mode, time_window)
-                    # Prepare results
-                    info_dict = {
-                        'Test': test_folder,
-                        '# Trips': trips_count,
-                        '# Vehicles': vehicles_count,
-                        'Time window (min)': time_window,
-                        'Solution Mode': solution_mode.value,
-                    }
-
-                    results.append({**info_dict, **output_dict})
+                    try:
+                        print("==================================================")
+                        print("Run taxi simulation with:")
+                        print("  Instance:", test_folder)
+                        print("  Algorithm:", algorithm.value)
+                        print("  Objective:", objective.value)
+                        print("  Solution mode:", solution_mode.value)
+                        print("  Time window (min):", time_window)
+                        print("==================================================")
+                        info_dict, output_dict = run_taxi_simulation(
+                            test_path, graph_file_path, algorithm, objective, solution_mode, time_window)
+                    except Exception as e:
+                        print(e)
+                        continue
 
                     # print solution
+                    results.append({**info_dict, **output_dict})
                     print_dict_as_table(results[-1])
 
     # Convert results to DataFrame

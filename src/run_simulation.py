@@ -7,6 +7,51 @@ from multimodalsim.observer.environment_observer import StandardEnvironmentObser
 from src.data_reader import TaxiDataReader
 import src.utilities as ut
 
+
+def run_taxi_simulation(test_folder, graph_file_path, algorithm, objective, solution_mode, time_window):
+    """ Function: Conducts a simulation of taxi dispatching, based on specified parameters.
+        Input:
+        ------------
+        test_folder : str
+            The directory path where the test files are located.
+        graph_file_path : str
+            The file path to the transportation network graph.
+        algorithm : Algorithm(Enum)
+            The optimization algorithm to use for routing and assignment.
+        objective : Objectives(Enum)
+            The optimization objective to achieve (e.g., profit maximization).
+                - total_Profit: total profit of served requests
+                - waiting_time: total wait time of served requests
+                - total_customers: total number of served customers
+        solution_mode : SolutionMode(Enum)
+            The mode of solution,
+                - offline : all the requests revealed at the start (release time = 0 for all requests)
+                - fully_online : release time is equal to the ready time for all requests
+                - online : requests are known 30 minutes before the ready time
+        time_window : int
+            Time window for picking up the requests
+
+        Output:
+        ------------
+        len(trips): number of trips
+        len(vehicles): number of vehicles
+        output_dict: a dictionary of output metrics.
+    """
+    # Run the simulation
+    trips_count, vehicles_count, output_dict = run_simulation(test_folder, graph_file_path, algorithm,
+                                                              objective, solution_mode, time_window)
+    # Compile information about the test and results
+    info_dict = {
+        'Test': test_folder,
+        '# Trips': trips_count,
+        '# Vehicles': vehicles_count,
+        'Time window (min)': time_window,
+        'Solution Mode': solution_mode.value,
+    }
+
+    return info_dict, output_dict
+
+
 def run_simulation(test_folder, graph_file_path, algorithm, objective, solution_mode, time_window):
     """ Function: Conducts a simulation of taxi dispatching, based on specified parameters.
         Input:

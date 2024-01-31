@@ -157,17 +157,23 @@ Finally, to test the simulator, you can run the file Run_Example.py at the root 
   python Run_Example.py
   ```
 
-You should obtain similar results:
+You should obtain similar results for the default arguments:
+  ```console
+    Attribute            | Value
+    --------------------+----------------------
+    Test                 | data/Instances/Med_1
+    # Trips              | 72
+    # Vehicles           | 20
+    Time window (min)    | 3
+    Solution Mode        | offline
+    Algorithm            | MIP_SOLVER
+    Objective_type       | total_customers
+    Objective_value      | 61.0
+    # served customers   | 61
+    % of Service         | 84.7
+  ```
+
+For more information on the arguments, you may run:
   ```bash
-  Attribute            | Value
-  --------------------+-----------------
-  Test                 | High_3
-  # Trips              | 163
-  # Vehicles           | 20
-  Time window (min)    | 3
-  Solution Mode        | offline
-  Algorithm            | MIP_SOLVER
-  Objective_type       | total_customers
-  Objective_value      | 79.0
-  # served customers   | 79
-  % of Service         | 48.5
+  python Run_Example.py -h
+  ```

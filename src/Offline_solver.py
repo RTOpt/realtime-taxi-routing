@@ -77,6 +77,7 @@ def create_model(K, P, durations):
 
     return model, Y_var, X_var, Z_var, U_var
 
+
 def define_objective_total_customers(Z_var, model, P):
     """ Function: define objective of maximizing the total number of served customers and add it to the model
         Input:
@@ -90,6 +91,7 @@ def define_objective_total_customers(Z_var, model, P):
         sense=GRB.MAXIMIZE
     )
 
+
 def define_objective_total_profit(X_var, Y_var, model, K, P, costs):
     """ Function: define objective of maximizing the total profit and add it to the model
         Input:
@@ -100,9 +102,11 @@ def define_objective_total_profit(X_var, Y_var, model, K, P, costs):
             X_var, Y_var : Model variables
             costs: driving costs
     """
+    raise NotImplementedError("Offline_solver.define_objective_total_profit() not implemented")
     model.setObjective(
         """you should write your objective here ..."""
     )
+
 
 def define_objective_total_wait_time(U_var, Z_var, model, P):
     """ Function: define objective of minimizing the total wait time and add it to the model
@@ -113,6 +117,7 @@ def define_objective_total_wait_time(U_var, Z_var, model, P):
             model : The Gurobi model to optimize.
             U_var, Z_var : Model variables
     """
+    raise NotImplementedError("Offline_solver.define_objective_total_wait_time() not implemented")
     model.setObjective(
         """you should write your objective here ..."""
     )
