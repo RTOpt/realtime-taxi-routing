@@ -148,3 +148,26 @@ Gurobi is an optimization solver used in various industries and academic researc
 For the most up-to-date and detailed installation instructions, please refer to the [official Gurobi documentation](https://www.gurobi.com/documentation/).
 
 **Note**: The process for obtaining a Gurobi license may change, and the terms of use for Gurobi software are subject to Gurobi's licensing agreement. Ensure you comply with all license terms and conditions.
+
+## Testing the simulator
+
+Finally, to test the simulator, you can run the file Run_Example.py at the root of the project directory:
+  ```bash
+  cd [project-directory]/realtime-taxi-routing
+  python Run_Example.py
+  ```
+
+You should obtain similar results:
+  ```bash
+  Attribute            | Value
+  --------------------+-----------------
+  Test                 | High_3
+  # Trips              | 163
+  # Vehicles           | 20
+  Time window (min)    | 3
+  Solution Mode        | offline
+  Algorithm            | MIP_SOLVER
+  Objective_type       | total_customers
+  Objective_value      | 79.0
+  # served customers   | 79
+  % of Service         | 48.5
