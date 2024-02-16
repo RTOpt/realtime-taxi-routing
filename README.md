@@ -9,6 +9,7 @@ The Taxi routing System is a solution designed to simulate and optimize taxi dis
 - **utilities.py**: Provides utility functions used across the system.
 - **taxi_dispatcher.py**: Core module where the dispatching logic and algorithms are implemented.
 - **Offline_solver.py**: Contains the logic for solving dispatch scenarios in offline mode, when all the requests are known in advance.
+- **Online_solver.py**: Contains the algorithms for solving dispatch scenarios in online mode, when all the requests are not known in advance and are received online.
 - **run_simulation.py**: Facilitates running simulations of the taxi dispatching system under various conditions.
 - **Run_Example.py**: An example script demonstrating how to run a basic instance of the dispatch system.
 - **Run_Tests.py**: Executes a series of tests to validate the correctness and performance of the system.
@@ -99,9 +100,11 @@ It's a best practice to create a virtual environment for your project to avoid c
     python -m venv venv
     source venv/bin/activate  # On Windows use `venv\Scripts\activate`
    
-3. **Instal `Setuptools` package**: Install `Setuptools` package if it is not installed on your system:
+3. **Instal the required packages**: Install the following packages if they are not installed on your system:
     ```bash
     pip install wheel setuptools pip --upgrade
+    pip install tabulate
+    pip install scipy
    
 4. **Installing the `multimodalsim` Package**: Execute the following commands to navigate to the package directory and install the package and requited dependencies:
     ```bash
