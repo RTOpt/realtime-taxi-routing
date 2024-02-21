@@ -2,13 +2,14 @@ import gurobipy as gp
 from gurobipy import GRB
 
 
-def create_model(K, P, durations):
+def create_model(K, P, durations, vehicle_request_assign):
     """ Function: create model to solve with Gurobi Solver
         Input:
         ------------
             K : set of vehicles
             P : set of customers to serve
             duration : travel time matrix between possible stop points
+            vehicle_request_assign: dictionary containing vehicle-request assignments.
 
         Output:
         ------------
@@ -71,9 +72,9 @@ def create_model(K, P, durations):
     # Constraints 6
     for f_i in P:
         for f_k in K:
-            T_ki = durations[f_k.start_stop.location.label][f_i.origin.label]
+            T_ki = durations[vehicle_request_assign[f_k.id]['departure_stop']][f_i.origin.label]
             model.addConstr(U_var[f_i.id] >= f_i.ready_time + (
-                    f_k.start_stop.departure_time + T_ki - f_i.ready_time) * Y_var[f_k.id, f_i.id])
+                    vehicle_request_assign[f_k.id]['departure_time'] + T_ki - f_i.ready_time) * Y_var[f_k.id, f_i.id])
 
     return model, Y_var, X_var, Z_var, U_var
 
@@ -92,7 +93,7 @@ def define_objective_total_customers(Z_var, model, P):
     )
 
 
-def define_objective_total_profit(X_var, Y_var, model, K, P, costs):
+def define_objective_total_profit(X_var, Y_var, model, K, P, costs, vehicle_request_assign):
     """ Function: define objective of maximizing the total profit and add it to the model
         Input:
         ------------
@@ -101,6 +102,7 @@ def define_objective_total_profit(X_var, Y_var, model, K, P, costs):
             model : The Gurobi model to optimize.
             X_var, Y_var : Model variables
             costs: driving costs
+            vehicle_request_assign: dictionary containing vehicle-request assignments.
     """
     raise NotImplementedError("Offline_solver.define_objective_total_profit() not implemented")
     model.setObjective(
@@ -123,7 +125,7 @@ def define_objective_total_wait_time(U_var, Z_var, model, P):
     )
 
 
-def solve_offline_model(model, P, K, Y_var, X_var, Z_var, U_var, selected_routes, rejected_trips):
+def solve_offline_model(model, P, K, Y_var, X_var, Z_var, rejected_trips, vehicle_request_assign):
     """Function: optimize the model with MIP solver and
                 Retrieve the variable values
                 convert solution to vehicle_request_assign dictionary which is required to determine the route plan
@@ -132,14 +134,14 @@ def solve_offline_model(model, P, K, Y_var, X_var, Z_var, U_var, selected_routes
             model : The Gurobi model to optimize.
             K : set of vehicles
             P : set of customers to serve
-            Y_var, X_var, Z_var, U_var : Decision variables used in the model.
-            selected_routes : List of selected routes for optimization.
+            Y_var, X_var, Z_var : Decision variables used in the model.
             rejected_trips : List of trips that are rejected in the optimization process.
+            vehicle_request_assign: dictionary containing vehicle-request assignments.
 
         Output:
         ------------
             model.objVal: The objective value of the optimized model
-            vehicle_request_assign: dictionary containing vehicle-request assignments.
+
     """
     # Optimize the model
     model.optimize()
@@ -149,25 +151,7 @@ def solve_offline_model(model, P, K, Y_var, X_var, Z_var, U_var, selected_routes
         print("Optimization did not converge to an optimal solution.")
         return
 
-    # create the dictionaries to containing the information of assigning requests to vehicles
-    vehicle_request_assign = {}
     assigned_requests = []
-
-
-    for veh in K:
-        temp_dict = {}
-        temp_dict['vehicle'] = veh
-        temp_dict['assigned_requests'] = []
-        temp_dict['departure_time'] = 0
-        temp_dict['last_stop'] = None
-
-        vehicle_request_assign[veh.id] = temp_dict
-
-    # set departure time and point for vehicles
-    for route in selected_routes:
-        if route.current_stop is not None:
-            vehicle_request_assign[route.vehicle.id]['departure_time'] = route.current_stop.departure_time
-            vehicle_request_assign[route.vehicle.id]['last_stop'] = route.current_stop
 
     # Extract the solution and populate the vehicle_request_assign and rejected_trips
     for f_k in K:
@@ -192,4 +176,4 @@ def solve_offline_model(model, P, K, Y_var, X_var, Z_var, U_var, selected_routes
         else:
             assigned_requests.append(trip)
 
-    return model.objVal.__round__(3), vehicle_request_assign
+    return model.objVal.__round__(3)
