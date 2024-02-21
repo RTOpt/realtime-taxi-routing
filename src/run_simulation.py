@@ -84,21 +84,31 @@ def run_simulation(test_folder, graph_file_path, algorithm, objective, solution_
     # Define file paths for requests, vehicles, and output directory
     requests_file_path = f"{test_folder}/customers.json"
     vehicles_file_path = f"{test_folder}/taxis.json"
-    output_file_path = os.path.join(test_folder, "output/")
+
+    short_algorithm = algorithm.name[:3]
+    short_mode = solution_mode.name[:3]
+    output_file_name = f"{short_algorithm}_{short_mode}_{time_window}.json"
+    output_file_path = os.path.join(test_folder, "output/", output_file_name)
+
 
     # Ensure output directory exists
     if not os.path.exists(output_file_path):
         os.makedirs(output_file_path)
 
     # Read and prepare data
-    data_reader = TaxiDataReader(requests_file_path, vehicles_file_path, graph_file_path, vehicles_end_time=100000)
-    network_graph = data_reader.get_json_graph()
-    ut.draw_network(network_graph, graph_file_path)
+    data_reader = TaxiDataReader(requests_file_path, vehicles_file_path, graph_file_path, vehicles_end_time=10000)
+    if os.path.exists(os.path.dirname(graph_file_path) + '/network.pkl'):
+        # Load network data from file
+        network_graph = data_reader.load_graph(os.path.dirname(graph_file_path) + '/network.pkl')
+    else:
+        network_graph = data_reader.get_json_graph()
+        data_reader.save_graph(os.path.dirname(graph_file_path))
+    ut.draw_network(network_graph, os.path.dirname(graph_file_path))
     vehicles, routes_by_vehicle_id = data_reader.get_json_vehicles()
     trips = data_reader.get_json_trips(solution_mode, time_window)
 
     # Initialize simulation components
-    dispatcher = TaxiDispatcher(network_graph, algorithm, objective)
+    dispatcher = TaxiDispatcher(network_graph, algorithm, objective, vehicles, solution_mode)
     opt = Optimization(dispatcher)
     environment_observer = StandardEnvironmentObserver()
 
