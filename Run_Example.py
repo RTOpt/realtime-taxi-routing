@@ -25,6 +25,8 @@ def run_example(test_folder="Med_1",
     algorithm: Algorithm used to optimize the plan:
         - MIP_SOLVER : using the Gurobi MIP solver to solve the problem
         - GREEDY : greedy approach to assign requests to vehicles
+        - RANDOM : random algorithm to assign arrival requests to vehicles
+        - RANKING : ranking method to assign arrival requests to vehicles
     """
     logging.getLogger().setLevel(logging.WARN)  # INFO
 
@@ -84,6 +86,8 @@ if __name__ == '__main__':
                         help="Algorithm used to optimize the plan:\n"
                              "- mip_solver : using the Gurobi MIP solver to solve the problem\n"
                              "- greedy : greedy approach to assign requests to vehicles.\n"
+                             "- random : random approach to assign requests to vehicles.\n"
+                             "- ranking : ranking approach to assign requests to vehicles.\n"
                              "Default: mip_solver.")
 
     args = parser.parse_args()

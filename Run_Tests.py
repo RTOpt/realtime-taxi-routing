@@ -21,39 +21,44 @@ if __name__ == '__main__':
         - online : requests are known 30 minutes before the ready time
     algorithm: Algorithm used to optimize the plan:
         - MIP_SOLVER : using the Gurobi MIP solver to solve the problem
-        - GREEDY : greedy approach to assign requests to vehicles          
+        - GREEDY : greedy approach to assign requests to vehicles 
+        - RANDOM : random algorithm to assign arrival requests to vehicles
+        - RANKING : ranking method to assign arrival requests to vehicles    
     """
-    algorithm = Algorithm.MIP_SOLVER
-    solution_mode = SolutionMode.OFFLINE
+    algorithms = [Algorithm.GREEDY, Algorithm.RANDOM, Algorithm.RANKING]
+    solution_modes = [SolutionMode.ONLINE, SolutionMode.FULLY_ONLINE]
+    objectives = [Objectives.WAIT_TIME, Objectives.PROFIT, Objectives.TOTAL_CUSTOMERS]
     # time window in minute
     time_windows = [1, 3, 6]
 
     results = []
 
-    # Iterate over each test folder and each objective
+    # Iterate over each test folder, objective
     for test_folder in os.listdir(base_folder):
         test_path = os.path.join(base_folder, test_folder)
         if os.path.isdir(test_path):
-            for objective in Objectives:
-                for time_window in time_windows:
-                    try:
-                        print("==================================================")
-                        print("Run taxi simulation with:")
-                        print("  Instance:", test_folder)
-                        print("  Algorithm:", algorithm.value)
-                        print("  Objective:", objective.value)
-                        print("  Solution mode:", solution_mode.value)
-                        print("  Time window (min):", time_window)
-                        print("==================================================")
-                        info_dict, output_dict = run_taxi_simulation(
-                            test_path, graph_file_path, algorithm, objective, solution_mode, time_window)
-                    except Exception as e:
-                        print(e)
-                        continue
+            for algorithm in algorithms:
+                for solution_mode in solution_modes:
+                    for objective in objectives:
+                        for time_window in time_windows:
+                            try:
+                                print("==================================================")
+                                print("Run taxi simulation with:")
+                                print("  Instance:", test_folder)
+                                print("  Algorithm:", algorithm.value)
+                                print("  Objective:", objective.value)
+                                print("  Solution mode:", solution_mode.value)
+                                print("  Time window (min):", time_window)
+                                print("==================================================")
+                                info_dict, output_dict = run_taxi_simulation(
+                                    test_path, graph_file_path, algorithm, objective, solution_mode, time_window)
+                            except Exception as e:
+                                print(e)
+                                continue
 
-                    # print solution
-                    results.append({**info_dict, **output_dict})
-                    print_dict_as_table(results[-1])
+                            # print solution
+                            results.append({**info_dict, **output_dict})
+                            print_dict_as_table(results[-1])
 
     # Convert results to DataFrame
     df = pd.DataFrame(results)

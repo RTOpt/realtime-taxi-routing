@@ -28,10 +28,14 @@ class SolutionMode(Enum):
 class Algorithm(Enum):
     """ Algorithm used to optimize the plan:
         - MIP_SOLVER : using the Gurobi MIP solver to solve the problem
-        - GREEDY : greedy approach to assign requests to vehicles
+        - GREEDY : greedy approach to assign arrival requests to vehicles
+        - RANDOM : random algorithm to assign arrival requests to vehicles
+        - RANKING : ranking method to assign arrival requests to vehicles
     """
     MIP_SOLVER = "MIP_SOLVER"
     GREEDY = "GREEDY"
+    RANDOM = "RANDOM"
+    RANKING = "RANKING"
 
 def get_distances(G):
     """ Function: calculate the shortest distance between each pair of stop nodes in the network graph
@@ -124,5 +128,5 @@ def draw_network(network, save_path):
     nx.draw_networkx_edge_labels(network, pos=pos, edge_labels=labels, font_size=7)
 
     # Save the figure
-    plt.savefig(save_path + 'Network.png', dpi=1000)
+    plt.savefig(save_path + '/Network.png', dpi=1000)
     plt.close()
