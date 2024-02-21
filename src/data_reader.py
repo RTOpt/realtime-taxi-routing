@@ -4,6 +4,8 @@ from multimodalsim.simulator.vehicle import LabelLocation, Stop, Vehicle
 import json
 import networkx as nx
 from src.utilities import SolutionMode
+import pickle
+
 
 
 
@@ -224,5 +226,18 @@ class TaxiDataReader(DataReader):
                         'total_cost': total_cost
                     }
 
+    def save_graph(self, file_path):
+        """Save the graph with all its data to a file."""
+        with open(file_path + '/network.pkl', 'wb') as f:
+            pickle.dump(self.__network, f)
+
+        f.close()
+
+    def load_graph(self, file_path):
+        """Load the graph with all its data from a file."""
+        with open(file_path, 'rb') as f:
+            self.__network = pickle.load(f)
+        f.close()
+        return self.__network
 
 
