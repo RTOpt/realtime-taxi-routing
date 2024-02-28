@@ -135,7 +135,7 @@ class OnlineSolver(Solver):
             Hint:
                 - for each trip in P_not_assigned you have to select a vehicle to assign or reject the request
                 - evaluating the feasibility of assigning a trip to a vehicle should be done inside
-                  "assign_trip_to_vehicle" function and setting ['assign_possible'] to True/False
+                  "determine_available_vehicles" function
                 - If no vehicle is available for a task, add it to the rejected_trips list
                 - Use the assign_trip_to_vehicle function to assign the task to the selected vehicle
 
@@ -162,7 +162,7 @@ class OnlineSolver(Solver):
         Hint:
             - for each trip in P_not_assigned you have to select a vehicle to assign or reject the request
             - evaluating the feasibility of assigning a trip to a vehicle should be done inside
-              "assign_trip_to_vehicle" function and setting ['assign_possible'] to True/False
+              "determine_available_vehicles" function
             - If no vehicle is available for a task, add it to the rejected_trips list
             - Use the assign_trip_to_vehicle function to assign the task to the selected vehicle
 
@@ -189,7 +189,7 @@ class OnlineSolver(Solver):
         Hint:
             - for each trip in P_not_assigned you have to select a vehicle to assign or reject the request
             - evaluating the feasibility of assigning a trip to a vehicle should be done inside
-              "assign_trip_to_vehicle" function and setting ['assign_possible'] to True/False
+              "determine_available_vehicles" function
             - If no vehicle is available for a task, add it to the rejected_trips list
             - Use the assign_trip_to_vehicle function to assign the task to the selected vehicle
 
