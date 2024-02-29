@@ -18,11 +18,27 @@ class OnlineSolver(Solver):
         vehicle_request_assign: dictionary
             a dictionary for each vehicle to keep track of various attributes associated with each vehicle
             This dictionary allows for saving the assignments of trips to vehicles which is used to create
-            the route plan
+            the route plan. it keeps the following data:
+
+                - vehicle: The vehicle object representing the specific vehicle in consideration.
+                - assigned_requests: A list containing the requests assigned to the vehicle.
+                - departure_stop: The last stop point of the vehicle in the previous iteration,
+                    which serves as the starting point for the current route plan.
+                - departure_time: The departure time from the departure stop point. This indicates
+                    when the vehicle is scheduled to depart from its starting point.
+                - last_stop: The last stop point assigned to the vehicle in the current solution.
+                - last_stop_time: The departure time from the last assigned stop in the current solution.
+                - assign_possible: A boolean value indicating whether it is possible to assign a trip to the vehicle.
+                    (This value may be updated dynamically within the "determine_available_vehicles" function.
+                    However, using this value is optional!)
+
         durations : dictionary
             travel time matrix between possible stop points
+            example: for duration between destination of trip_i and the origin of trip_j use:
+                     self.durations[trip_i.destination.label][trip_i.origin.label]
+
         costs: dictionary
-            driving costs
+            driving costs (it works based on location ids like durations)
         algorithm: Algorithm(Enum)
             The optimization algorithm utilized for planning and assigning trips to vehicles.
         objective: Objectives(Enum)
@@ -43,7 +59,8 @@ class OnlineSolver(Solver):
             ------------
                 trip : ride request to serve
             Hint:
-                you can use "vehicle_request_assign" and "durations" attributes of the class
+                - you can use self.vehicle_request_assign dictionary for information about the vehicles
+                - you can use calc_reach_time function of the solver class
 
         """
         """you should write your code here ..."""
@@ -70,7 +87,9 @@ class OnlineSolver(Solver):
             X, Y , U, Z : Model variables
 
             Hint:
-                you can
+                - you can use self.vehicle_request_assign dictionary for information about the vehicles
+                - you can use self.costs or self.durations for cost and time matrix if required
+
         """
         value = 0
         if self.objective == Objectives.TOTAL_CUSTOMERS:
@@ -137,7 +156,9 @@ class OnlineSolver(Solver):
                 - evaluating the feasibility of assigning a trip to a vehicle should be done inside
                   "determine_available_vehicles" function
                 - If no vehicle is available for a task, add it to the rejected_trips list
-                - Use the assign_trip_to_vehicle function to assign the task to the selected vehicle
+                - if a vehicle is selected to assign a request:
+                    - Use the assign_trip_to_vehicle function to assign the task to the selected vehicle
+                    - add trip the list of assigned_requests
 
         """
         # for each request find the best insertion position
@@ -164,8 +185,9 @@ class OnlineSolver(Solver):
             - evaluating the feasibility of assigning a trip to a vehicle should be done inside
               "determine_available_vehicles" function
             - If no vehicle is available for a task, add it to the rejected_trips list
-            - Use the assign_trip_to_vehicle function to assign the task to the selected vehicle
-
+            - if a vehicle is selected to assign a request:
+                - Use the assign_trip_to_vehicle function to assign the task to the selected vehicle
+                - add trip the list of assigned_requests
     """
         # for each request find the best insertion position
         assigned_requests = []
@@ -191,7 +213,9 @@ class OnlineSolver(Solver):
             - evaluating the feasibility of assigning a trip to a vehicle should be done inside
               "determine_available_vehicles" function
             - If no vehicle is available for a task, add it to the rejected_trips list
-            - Use the assign_trip_to_vehicle function to assign the task to the selected vehicle
+            - if a vehicle is selected to assign a request:
+                - Use the assign_trip_to_vehicle function to assign the task to the selected vehicle
+                - add trip the list of assigned_requests
 
     """
         # for each request find the best insertion position
