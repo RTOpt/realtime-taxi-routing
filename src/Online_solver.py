@@ -127,7 +127,7 @@ class OnlineSolver(Solver):
         if self.algorithm == Algorithm.GREEDY:
             assigned_requests = self.greedy_assign(sorted_requests, rejected_trips)
         elif self.algorithm == Algorithm.RANDOM:
-            assigned_requests = self.ranking_assign(sorted_requests, rejected_trips)
+            assigned_requests = self.random_assign(sorted_requests, rejected_trips)
         elif self.algorithm == Algorithm.RANKING:
             assigned_requests = self.ranking_assign(sorted_requests, rejected_trips)
 
