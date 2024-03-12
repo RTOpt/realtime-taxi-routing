@@ -23,7 +23,11 @@ if __name__ == '__main__':
         - MIP_SOLVER : using the Gurobi MIP solver to solve the problem
         - GREEDY : greedy approach to assign requests to vehicles 
         - RANDOM : random algorithm to assign arrival requests to vehicles
-        - RANKING : ranking method to assign arrival requests to vehicles    
+        - RANKING : ranking method to assign arrival requests to vehicles  
+        - QUALITATIVE_CONSENSUS : consensus online stochastic algorithm to assign arrival requests to vehicles
+            a counter is incremented for the best request to assign at each scenario.
+        - QUANTITATIVE_CONSENSUS : consensus online stochastic algorithm to assign arrival requests to vehicles
+            he best request to assign is credited by the optimal solution value, rather than merely incrementing a counter.  
     """
     algorithms = [Algorithm.GREEDY, Algorithm.RANDOM, Algorithm.RANKING]
     solution_modes = [SolutionMode.ONLINE, SolutionMode.FULLY_ONLINE]

@@ -19,10 +19,12 @@ class SolutionMode(Enum):
         - offline : all the requests revealed at the start (release time = 0 for all requests)
         - fully_online : release time is equal to the ready time for all requests
         - online : requests are known 30 minutes before the ready time
+        - partial : a part of requests are known at the start and for the rest release time is equal to the ready time
     """
     OFFLINE = "offline"
     ONLINE = "online"
     FULLY_ONLINE = "fully_online"
+    PARTIAL = "partially_known"
 
 
 class Algorithm(Enum):
@@ -31,11 +33,18 @@ class Algorithm(Enum):
         - GREEDY : greedy approach to assign arrival requests to vehicles
         - RANDOM : random algorithm to assign arrival requests to vehicles
         - RANKING : ranking method to assign arrival requests to vehicles
+        - QUALITATIVE_CONSENSUS : consensus online stochastic algorithm to assign arrival requests to vehicles
+            a counter is incremented for the best request to assign at each scenario.
+        - QUANTITATIVE_CONSENSUS : consensus online stochastic algorithm to assign arrival requests to vehicles
+            he best request to assign is credited by the optimal solution value, rather than merely incrementing a counter.
     """
     MIP_SOLVER = "MIP_SOLVER"
     GREEDY = "GREEDY"
     RANDOM = "RANDOM"
     RANKING = "RANKING"
+    QUALITATIVE_CONSENSUS = "QUALITATIVE_CONSENSUS"
+    QUANTITATIVE_CONSENSUS = "QUANTITATIVE_CONSENSUS"
+
 
 def get_distances(G):
     """ Function: calculate the shortest distance between each pair of stop nodes in the network graph
@@ -77,6 +86,7 @@ def get_costs(G):
         for node2 in G.nodes():
             costs[node1][node2] = data['shortest_paths'][node2]['total_duration'] / 3600 * 5
     return costs
+
 
 def print_dict_as_table(input_dict):
     """Function: print a dictionary in a tabular format

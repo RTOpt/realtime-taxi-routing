@@ -1,6 +1,6 @@
 import gurobipy as gp
 from gurobipy import GRB
-
+from src.utilities import Objectives
 
 def create_model(K, P, durations, vehicle_request_assign):
     """ Function: create model to solve with Gurobi Solver
@@ -77,6 +77,15 @@ def create_model(K, P, durations, vehicle_request_assign):
                     vehicle_request_assign[f_k.id]['departure_time'] + T_ki - f_i.ready_time) * Y_var[f_k.id, f_i.id])
 
     return model, Y_var, X_var, Z_var, U_var
+
+
+def define_objective(objective, X_var, Y_var, U_var, Z_var, model, K, P, costs, vehicle_request_assign):
+    if objective == Objectives.PROFIT:
+        define_objective_total_profit(X_var, Y_var, model, K, P, costs, vehicle_request_assign)
+    elif objective == Objectives.TOTAL_CUSTOMERS:
+        define_objective_total_customers(Z_var, model, P)
+    elif objective == Objectives.WAIT_TIME:
+        define_objective_total_wait_time(U_var, Z_var, model, P)
 
 
 def define_objective_total_customers(Z_var, model, P):

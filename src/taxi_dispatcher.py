@@ -10,9 +10,10 @@ logger = logging.getLogger(__name__)
 
 from multimodalsim.optimization.dispatcher import Dispatcher
 from src.Offline_solver import (create_model, define_objective_total_customers,define_objective_total_profit,
-                                define_objective_total_wait_time,solve_offline_model)
+                                define_objective_total_wait_time, solve_offline_model, define_objective)
 from src.constraints_and_objectives import variables_declaration
 from src.Online_solver import OnlineSolver
+from src.stochastic_solver import StochasticSolver
 from src.solver import Solver
 
 
@@ -45,7 +46,7 @@ class TaxiDispatcher(Dispatcher):
 
     """
 
-    def __init__(self, network, algorithm, objective, vehicles, solution_mode):
+    def __init__(self, network, algorithm, objective, vehicles, solution_mode, nb_scenario=None, cust_node_hour=None):
         """
         Call the constructor
 
@@ -72,7 +73,10 @@ class TaxiDispatcher(Dispatcher):
         if solution_mode == SolutionMode.OFFLINE:
             self.__solver = Solver(network, algorithm, objective, vehicles)
         else:
-            self.__solver = OnlineSolver(network, algorithm, objective, vehicles)
+            if algorithm == Algorithm.QUALITATIVE_CONSENSUS or algorithm == Algorithm.QUANTITATIVE_CONSENSUS:
+                self.__solver = StochasticSolver(network, algorithm, objective, vehicles, nb_scenario, cust_node_hour)
+            else:
+                self.__solver = OnlineSolver(network, algorithm, objective, vehicles)
 
     @property
     def objective_value(self):
@@ -133,8 +137,9 @@ class TaxiDispatcher(Dispatcher):
             """
 
         selected_route = []
-        # self.__rejected_trips = [leg.trip for leg in state.non_assigned_next_legs if leg.trip.latest_pickup
-        #                                 < state.current_time]
+        if self.__algorithm == Algorithm.QUALITATIVE_CONSENSUS or self.__algorithm == Algorithm.QUANTITATIVE_CONSENSUS:
+            self.__rejected_trips = [leg.trip for leg in state.non_assigned_next_legs if leg.trip.latest_pickup
+                                     < state.current_time]
         rejected_ids = {leg.id for leg in self.__rejected_trips}
 
         # remove rejected trips from the list of non-assigned trips
@@ -143,9 +148,12 @@ class TaxiDispatcher(Dispatcher):
         if len(state.non_assigned_next_legs) > 0:
             for vehicle in state.vehicles:
                 route = state.route_by_vehicle_id[vehicle.id]
-                selected_route.append(route)
-
-        self.solver.update_vehicle_state(selected_route)
+                if self.__algorithm != Algorithm.QUALITATIVE_CONSENSUS and self.__algorithm != Algorithm.QUANTITATIVE_CONSENSUS:
+                    selected_route.append(route)
+                elif len(route.next_stops) <= 1:
+                    selected_route.append(route)
+        current_routes = [state.route_by_vehicle_id[vehicle.id] for vehicle in state.vehicles]
+        self.solver.update_vehicle_state(current_routes)
         return selected_next_legs, selected_route
 
     def optimize(self, selected_next_legs, selected_routes, current_time, state):
@@ -182,21 +190,14 @@ class TaxiDispatcher(Dispatcher):
         # driving cost between stop locations
         costs = get_costs(self.__network)
 
-        self.solver.update_vehicle_state(selected_routes)
-
         if self.__algorithm == Algorithm.MIP_SOLVER:
             # create model
             model, Y_var, X_var, Z_var, U_var = create_model(vehicles, trips, durations,
                                                              self.solver.vehicle_request_assign)
 
             # add objective
-            if self.__objective == Objectives.PROFIT:
-                define_objective_total_profit(X_var, Y_var, model, vehicles, trips, costs,
-                                        self.solver.vehicle_request_assign)
-            elif self.__objective == Objectives.TOTAL_CUSTOMERS:
-                define_objective_total_customers(Z_var, model, trips)
-            elif self.__objective == Objectives.WAIT_TIME:
-                define_objective_total_wait_time(U_var, Z_var, model, trips)
+            define_objective(self.__objective, X_var, Y_var, U_var, Z_var, model, vehicles, trips, costs,
+                             self.solver.vehicle_request_assign)
 
             # solve and get solution
             obj_value = solve_offline_model(model, trips, vehicles, Y_var, X_var, Z_var,
@@ -205,21 +206,23 @@ class TaxiDispatcher(Dispatcher):
             # calculate the total number of served customers
             self.__total_customers_served += sum(1 for f_i in trips if round(Z_var[f_i.id].x))
         else:
-            X, Y, U, Z = variables_declaration(vehicles, trips)
-
-            self.solver.online_solver(vehicles,trips, Y, X, Z, U,self.__rejected_trips)
+            K = [vehicle_dict['vehicle'] for vehicle_dict in self.solver.vehicle_request_assign.values()]
+            X, Y, U, Z = variables_declaration(K, trips)
+            if self.__algorithm == Algorithm.QUALITATIVE_CONSENSUS or self.__algorithm == Algorithm.QUANTITATIVE_CONSENSUS:
+                self.solver.stochastic_solver(vehicles, trips, Y, X, Z, U, self.__network, current_time)
+            else:
+                self.solver.online_solver(vehicles, trips, Y, X, Z, U, self.__rejected_trips)
 
             self.__objective_value += self.solver.objective_value
             # calculate the total number of served customers
             self.__total_customers_served += self.solver.total_customers_served
 
-
         veh_trips_assignments_list = list(self.solver.vehicle_request_assign.values())
         # remove the vehicles without any changes in request-assign
         veh_trips_assignments_list = [temp_dict for temp_dict in veh_trips_assignments_list if
                                       temp_dict['assigned_requests']]
-        route_plans_list = self.__create_route_plans_list(veh_trips_assignments_list, next_leg_by_trip_id, current_time,
-                                                          state)
+        route_plans_list = self.__create_route_plans_list(veh_trips_assignments_list, next_leg_by_trip_id,
+                                                          current_time, state)
 
         return route_plans_list
 

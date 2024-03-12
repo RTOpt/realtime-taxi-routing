@@ -8,7 +8,8 @@ from src.data_reader import TaxiDataReader
 import src.utilities as ut
 
 
-def run_taxi_simulation(test_folder, graph_file_path, algorithm, objective, solution_mode, time_window):
+def run_taxi_simulation(test_folder, graph_file_path, algorithm, objective, solution_mode, time_window,
+                        nb_scenario, cust_node_hour, known_portion):
     """ Function: Conducts a simulation of taxi dispatching, based on specified parameters.
         Input:
         ------------
@@ -28,8 +29,18 @@ def run_taxi_simulation(test_folder, graph_file_path, algorithm, objective, solu
                 - offline : all the requests revealed at the start (release time = 0 for all requests)
                 - fully_online : release time is equal to the ready time for all requests
                 - online : requests are known 30 minutes before the ready time
+                - partial : a portion of requests are known at the start and for the rest release time is equal to the ready time
         time_window : int
             Time window for picking up the requests
+        cust_node_hour: float
+            the average rate of customers per node (in the network) per hour
+                - for small size tests select 0.2
+                - for medium size tests select 0.3
+                - for large size tests select 0.7
+        nb_scenario: int
+            Total number of scenarios to be solved for consensus
+        known_portion: float
+            portion of requests that are known in advance
 
         Output:
         ------------
@@ -38,8 +49,9 @@ def run_taxi_simulation(test_folder, graph_file_path, algorithm, objective, solu
         output_dict: a dictionary of output metrics.
     """
     # Run the simulation
-    trips_count, vehicles_count, output_dict = run_simulation(test_folder, graph_file_path, algorithm,
-                                                              objective, solution_mode, time_window)
+    trips_count, vehicles_count, output_dict = run_simulation(test_folder, graph_file_path, algorithm, objective,
+                                                              solution_mode, time_window, nb_scenario,
+                                                              cust_node_hour, known_portion)
     # Compile information about the test and results
     info_dict = {
         'Test': test_folder,
@@ -47,12 +59,18 @@ def run_taxi_simulation(test_folder, graph_file_path, algorithm, objective, solu
         '# Vehicles': vehicles_count,
         'Time window (min)': time_window,
         'Solution Mode': solution_mode.value,
+        'Known portion': known_portion,
     }
+    if algorithm == ut.Algorithm.QUALITATIVE_CONSENSUS or algorithm == ut.Algorithm.QUANTITATIVE_CONSENSUS:
+        info_dict.update({'# Scenarios': nb_scenario,
+                          'customer rate': cust_node_hour})
+
 
     return info_dict, output_dict
 
 
-def run_simulation(test_folder, graph_file_path, algorithm, objective, solution_mode, time_window):
+def run_simulation(test_folder, graph_file_path, algorithm, objective, solution_mode, time_window,
+                   nb_scenario, cust_node_hour, known_portion=0):
     """ Function: Conducts a simulation of taxi dispatching, based on specified parameters.
         Input:
         ------------
@@ -72,8 +90,18 @@ def run_simulation(test_folder, graph_file_path, algorithm, objective, solution_
                 - offline : all the requests revealed at the start (release time = 0 for all requests)
                 - fully_online : release time is equal to the ready time for all requests
                 - online : requests are known 30 minutes before the ready time
+                - partial : a portion of requests are known at the start and for the rest release time is equal to the ready time
         time_window : int
             Time window for picking up the requests
+        cust_node_hour: float
+            the average rate of customers per node (in the network) per hour
+                - for small size tests select 0.2
+                - for medium size tests select 0.3
+                - for large size tests select 0.7
+        nb_scenario: int
+            Total number of scenarios to be solved for consensus
+        known_portion: float
+            portion of requests that are known in advance
 
         Output:
         ------------
@@ -105,10 +133,11 @@ def run_simulation(test_folder, graph_file_path, algorithm, objective, solution_
         data_reader.save_graph(os.path.dirname(graph_file_path))
     ut.draw_network(network_graph, os.path.dirname(graph_file_path))
     vehicles, routes_by_vehicle_id = data_reader.get_json_vehicles()
-    trips = data_reader.get_json_trips(solution_mode, time_window)
+    trips = data_reader.get_json_trips(solution_mode, time_window, known_portion)
 
     # Initialize simulation components
-    dispatcher = TaxiDispatcher(network_graph, algorithm, objective, vehicles, solution_mode)
+    dispatcher = TaxiDispatcher(network_graph, algorithm, objective, vehicles, solution_mode, nb_scenario,
+                                cust_node_hour)
     opt = Optimization(dispatcher)
     environment_observer = StandardEnvironmentObserver()
 

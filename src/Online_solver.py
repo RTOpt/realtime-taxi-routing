@@ -112,9 +112,6 @@ class OnlineSolver(Solver):
                 X , Y, U, Z : Model variables
                 rejected_trips: List of trips that are rejected in the optimization process.
 
-            Output:
-            ------------
-                obj_value: The objective value of the optimized model
 
             steps:
             1. assign requests to the vehicles/ routes based on the chosen algorithm
@@ -188,7 +185,7 @@ class OnlineSolver(Solver):
             - if a vehicle is selected to assign a request:
                 - Use the assign_trip_to_vehicle function to assign the task to the selected vehicle
                 - add trip the list of assigned_requests
-    """
+        """
         # for each request find the best insertion position
         assigned_requests = []
         """
@@ -217,7 +214,7 @@ class OnlineSolver(Solver):
                 - Use the assign_trip_to_vehicle function to assign the task to the selected vehicle
                 - add trip the list of assigned_requests
 
-    """
+        """
         # for each request find the best insertion position
         assigned_requests = []
         """

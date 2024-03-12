@@ -5,6 +5,7 @@ import json
 import networkx as nx
 from src.utilities import SolutionMode
 import pickle
+import random
 
 
 
@@ -43,12 +44,13 @@ class TaxiDataReader(DataReader):
         self.__sim_end_time = sim_end_time
         self.__vehicles_end_time = vehicles_end_time
 
-    def get_json_trips(self, solution_mode, time_window):
+    def get_json_trips(self, solution_mode, time_window, known_portion=0):
         """ Function: read trip from a file
             Input:
             ------------
             solution_mode : The mode of solution (offline, fully online, etc.).
             time_window : Time window for requests pickup
+            known_portion: portion of requests that are known in advance
 
             Output:
             ------------
@@ -58,7 +60,11 @@ class TaxiDataReader(DataReader):
         with open(self.requests_json_file_path) as f:
             js_data = json.load(f)
             nb_passengers = 1  # Each request corresponds to 1 passenger.
-            for entry in js_data:
+            # Shuffle the indices and select known_portion of them
+            indices = list(range(len(js_data)))
+            random.shuffle(indices)
+            known_trip_indices = indices[:int(len(js_data) * known_portion)]
+            for idx, entry in enumerate(js_data):
                 # Process trip data
                 orig_id = str(int(entry['orig']) - 1)
                 dest_id = str(int(entry['dest']) - 1)
@@ -77,6 +83,12 @@ class TaxiDataReader(DataReader):
                     release_time = 0
                 elif solution_mode == SolutionMode.FULLY_ONLINE:
                     release_time = entry['tmin'].__round__(3)
+                elif solution_mode == SolutionMode.PARTIAL:
+                    # Check if the current trip index is in the known_trip_indices
+                    if idx in known_trip_indices:
+                        release_time = 0
+                    else:
+                        release_time = entry['tmin'].__round__(3)
                 else:
                     release_time = entry['tcall'].__round__(3)
 

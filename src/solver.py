@@ -156,3 +156,17 @@ class Solver():
     def total_customers_served(self, total_customers_served):
         """Setter for the total_customers_served attribute."""
         self.__total_customers_served = total_customers_served
+
+    def assign_trip_to_vehicle(self, selected_vehicle_info, trip):
+        """ Function: assign trip to a vehicle
+            Input:
+            ------------
+                trip : request to be assigned
+                selected_vehicle_info : dictionary of the selected vehicle to assign the request
+            """
+        selected_vehicle_info['assigned_requests'].append(trip)
+        reach_time_to_pick = self.calc_reach_time(selected_vehicle_info, trip)
+
+        selected_vehicle_info['last_stop_time'] = reach_time_to_pick + trip.shortest_travel_time
+        selected_vehicle_info['last_stop'] = trip.destination.label
+
