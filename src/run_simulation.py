@@ -9,7 +9,7 @@ import src.utilities as ut
 
 
 def run_taxi_simulation(test_folder, graph_file_path, algorithm, objective, solution_mode, time_window,
-                        nb_scenario, cust_node_hour, known_portion):
+                        nb_scenario, cust_node_hour, known_portion=0):
     """ Function: Conducts a simulation of taxi dispatching, based on specified parameters.
         Input:
         ------------
@@ -70,7 +70,7 @@ def run_taxi_simulation(test_folder, graph_file_path, algorithm, objective, solu
 
 
 def run_simulation(test_folder, graph_file_path, algorithm, objective, solution_mode, time_window,
-                   nb_scenario, cust_node_hour, known_portion=0):
+                   nb_scenario, cust_node_hour, known_portion):
     """ Function: Conducts a simulation of taxi dispatching, based on specified parameters.
         Input:
         ------------

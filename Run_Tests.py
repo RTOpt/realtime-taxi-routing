@@ -34,6 +34,9 @@ if __name__ == '__main__':
     objectives = [Objectives.WAIT_TIME, Objectives.PROFIT, Objectives.TOTAL_CUSTOMERS]
     # time window in minute
     time_windows = [1, 3, 6]
+    known_portion = 0
+    cust_node_hour = 0.2
+    nb_scenario = 5
 
     results = []
 
@@ -53,9 +56,15 @@ if __name__ == '__main__':
                                 print("  Objective:", objective.value)
                                 print("  Solution mode:", solution_mode.value)
                                 print("  Time window (min):", time_window)
+                                print("  Percentage known (%):", known_portion)
+                                if algorithm == Algorithm.QUALITATIVE_CONSENSUS or algorithm == Algorithm.QUANTITATIVE_CONSENSUS:
+                                    print("  Number of Scenario:", nb_scenario)
+                                    print("  customers per node per hour:", cust_node_hour)
                                 print("==================================================")
                                 info_dict, output_dict = run_taxi_simulation(
-                                    test_path, graph_file_path, algorithm, objective, solution_mode, time_window)
+                                    test_path, graph_file_path, algorithm, objective, solution_mode, time_window,
+                                    nb_scenario, cust_node_hour, known_portion)
+
                             except Exception as e:
                                 print(e)
                                 continue
