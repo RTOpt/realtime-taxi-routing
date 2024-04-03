@@ -7,7 +7,10 @@ from src.test_generator import create_random_requests
 
 
 class StochasticSolver(Solver):
-    """Provide online stochastic solution to optimize the vehicle routing and the trip-route assignment.
+    """Provide online stochastic solution to optimize the vehicle routing and the trip-route assignment. This
+        method includes:
+            1. qualitative_consensus
+            2. quantitative_consensus
 
         Attributes
         ------------
@@ -111,7 +114,6 @@ class StochasticSolver(Solver):
         """you should write your code here ..."""
 
         return assigned_requests
-
 
     def quantitative_consensus(self, P_not_assigned, G, K, time_window, current_time):
         """ Function: find a solution based on consensus method to assign ride requests to vehicles after arrival.
