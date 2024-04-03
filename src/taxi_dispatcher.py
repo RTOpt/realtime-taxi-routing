@@ -304,7 +304,8 @@ class TaxiDispatcher(Dispatcher):
 
 
         for index, trip_id in enumerate(trip_ids):
-            if len(route.next_stops) > 1 or len(route_plan.assigned_legs) > 0:
+            if self.solution_mode != SolutionMode.OFFLINE and (
+                    len(route.next_stops) > 1 or len(route_plan.assigned_legs) > 0):
                 break
 
             leg = next_leg_by_trip_id[trip_id]
