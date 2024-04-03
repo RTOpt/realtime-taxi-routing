@@ -24,7 +24,7 @@ def create_model(K, P, durations, vehicle_request_assign):
     Z_var = {}  # Decision variable for whether a customer is served or not
     for f_i in P:
         U_var[f_i.id] = model.addVar(vtype=GRB.CONTINUOUS, lb=0, obj=0, name=f'U_{f_i.id}')
-        Z_var[f_i.id] = model.addVar(vtype=GRB.BINARY, obj=0, name=f'C_{f_i.id}')
+        Z_var[f_i.id] = model.addVar(vtype=GRB.BINARY, obj=0, name=f'Z_{f_i.id}')
         for f_j in P:
             if f_i != f_j:
                 X_var[f_i.id, f_j.id] = model.addVar(vtype=GRB.BINARY, name=f'X_{f_i.id}_{f_j.id}')
