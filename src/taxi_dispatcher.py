@@ -4,6 +4,7 @@ import logging
 from multimodalsim.optimization.optimization import OptimizationResult
 from multimodalsim.simulator.vehicle import Stop, LabelLocation
 
+from src.Re_optimizer import ReOptimizer
 from src.utilities import Algorithm, Objectives, SolutionMode, get_costs, get_durations
 
 logger = logging.getLogger(__name__)
@@ -15,7 +16,7 @@ from src.constraints_and_objectives import variables_declaration
 from src.Online_solver import OnlineSolver
 from src.stochastic_solver import StochasticSolver
 from src.solver import Solver
-
+from src.Timer import Timer
 
 
 class TaxiDispatcher(Dispatcher):
@@ -43,10 +44,13 @@ class TaxiDispatcher(Dispatcher):
             the solver class including the optimizing functions
         solution_mode : SolutionMode(Enum)
             The mode of solution
+        runtime : Timer
+            timer to keep track on the time to optimize the solition
 
     """
 
-    def __init__(self, network, algorithm, objective, vehicles, solution_mode, nb_scenario=None, cust_node_hour=None):
+    def __init__(self, network, algorithm, objective, vehicles, solution_mode, nb_scenario=None, cust_node_hour=None,
+                 destroy_method = None):
         """
         Call the constructor
 
@@ -69,14 +73,22 @@ class TaxiDispatcher(Dispatcher):
         self.__objective = objective
         self.__total_customers_served = 0
         self.__objective_value = 0
+        self.__current_solution = None
         self.__solution_mode = solution_mode
+        self.runtime = Timer()
+
         if solution_mode == SolutionMode.OFFLINE:
             self.__solver = Solver(network, algorithm, objective, vehicles)
         else:
-            if algorithm == Algorithm.QUALITATIVE_CONSENSUS or algorithm == Algorithm.QUANTITATIVE_CONSENSUS:
-                self.__solver = StochasticSolver(network, algorithm, objective, vehicles, nb_scenario, cust_node_hour)
+            if algorithm in [Algorithm.QUALITATIVE_CONSENSUS , Algorithm.QUANTITATIVE_CONSENSUS]:
+                self.__solver = StochasticSolver(network, algorithm, objective, vehicles, nb_scenario,
+                                                        cust_node_hour)
+            elif algorithm == Algorithm.RE_OPTIMIZE:
+                self.__solver = ReOptimizer(network, algorithm, objective, vehicles, destroy_method)
             else:
                 self.__solver = OnlineSolver(network, algorithm, objective, vehicles)
+
+
 
     @property
     def objective_value(self):
@@ -137,7 +149,7 @@ class TaxiDispatcher(Dispatcher):
             """
 
         selected_route = []
-        if self.__algorithm == Algorithm.QUALITATIVE_CONSENSUS or self.__algorithm == Algorithm.QUANTITATIVE_CONSENSUS:
+        if self.__algorithm in {Algorithm.QUALITATIVE_CONSENSUS, Algorithm.QUANTITATIVE_CONSENSUS, Algorithm.RE_OPTIMIZE}:
             self.__rejected_trips = [leg.trip for leg in state.non_assigned_next_legs if leg.trip.latest_pickup
                                      < state.current_time]
         rejected_ids = {leg.id for leg in self.__rejected_trips}
@@ -148,7 +160,7 @@ class TaxiDispatcher(Dispatcher):
         if len(state.non_assigned_next_legs) > 0:
             for vehicle in state.vehicles:
                 route = state.route_by_vehicle_id[vehicle.id]
-                if self.__algorithm != Algorithm.QUALITATIVE_CONSENSUS and self.__algorithm != Algorithm.QUANTITATIVE_CONSENSUS:
+                if self.__algorithm not in [Algorithm.QUALITATIVE_CONSENSUS, Algorithm.QUANTITATIVE_CONSENSUS]:
                     selected_route.append(route)
                 elif len(route.next_stops) <= 1:
                     selected_route.append(route)
@@ -157,6 +169,7 @@ class TaxiDispatcher(Dispatcher):
         return selected_next_legs, selected_route
 
     def optimize(self, selected_next_legs, selected_routes, current_time, state):
+        self.runtime.start()
         """ Function: Determine the vehicle routing and the trip-route assignment
             according to an optimization algorithm. The optimization algorithm
             should be called in this method.
@@ -183,6 +196,7 @@ class TaxiDispatcher(Dispatcher):
         vehicles = [route.vehicle for route in selected_routes]
         # non-assigned requests
         trips = [leg.trip for leg in selected_next_legs]
+        trips = sorted(trips, key=lambda x: x.ready_time)
         next_leg_by_trip_id = {leg.trip.id: leg for leg in selected_next_legs}
 
         # travel time between stop locations
@@ -202,20 +216,17 @@ class TaxiDispatcher(Dispatcher):
             # solve and get solution
             obj_value = solve_offline_model(model, trips, vehicles, Y_var, X_var, Z_var,
                                             self.__rejected_trips, self.solver.vehicle_request_assign)
-            self.__objective_value += obj_value
-            # calculate the total number of served customers
-            self.__total_customers_served += sum(1 for f_i in trips if round(Z_var[f_i.id].x))
+
         else:
             K = [vehicle_dict['vehicle'] for vehicle_dict in self.solver.vehicle_request_assign.values()]
             X, Y, U, Z = variables_declaration(K, trips)
             if self.__algorithm == Algorithm.QUALITATIVE_CONSENSUS or self.__algorithm == Algorithm.QUANTITATIVE_CONSENSUS:
                 self.solver.stochastic_solver(vehicles, trips, Y, X, Z, U, self.__network, current_time)
+            elif self.__algorithm == Algorithm.RE_OPTIMIZE:
+                self.solver.re_optimizer(vehicles, trips, self.__rejected_trips)
             else:
                 self.solver.online_solver(vehicles, trips, Y, X, Z, U, self.__rejected_trips)
 
-            self.__objective_value += self.solver.objective_value
-            # calculate the total number of served customers
-            self.__total_customers_served += self.solver.total_customers_served
 
         veh_trips_assignments_list = list(self.solver.vehicle_request_assign.values())
         # remove the vehicles without any changes in request-assign
@@ -223,7 +234,7 @@ class TaxiDispatcher(Dispatcher):
                                       temp_dict['assigned_requests']]
         route_plans_list = self.__create_route_plans_list(veh_trips_assignments_list, next_leg_by_trip_id,
                                                           current_time, state)
-
+        self.runtime.stop()
         return route_plans_list
 
     def __create_route_plans_list(self, veh_trips_assignments_list,
@@ -291,12 +302,17 @@ class TaxiDispatcher(Dispatcher):
             departure_time = route.next_stops[-1].departure_time
             route_plan.copy_route_stops()
 
+
         for index, trip_id in enumerate(trip_ids):
+            if len(route.next_stops) > 1 or len(route_plan.assigned_legs) > 0:
+                break
+
             leg = next_leg_by_trip_id[trip_id]
             route_plan.assign_leg(leg)
             # Calculate and add pick-up stop.
-            arrival_time = departure_time + self.__network.nodes[departure_stop_id]['shortest_paths'][
+            travel_time_to_pick = self.__network.nodes[departure_stop_id]['shortest_paths'][
                 leg.trip.origin.label]['total_duration']
+            arrival_time = departure_time + travel_time_to_pick
             if arrival_time < leg.trip.ready_time:
                 # If the vehicle arrives earlier than the ready time, adjust departure to align with the ready time.
                 if len(route_plan.next_stops) == 0:
@@ -306,6 +322,18 @@ class TaxiDispatcher(Dispatcher):
                 arrival_time = leg.trip.ready_time
             departure_time = arrival_time
             route_plan.append_next_stop(leg.trip.origin.label, arrival_time, departure_time, legs_to_board=[leg])
+
+            # update objectives
+            self.__total_customers_served += 1
+            if self.solver.objective == Objectives.TOTAL_CUSTOMERS:
+                self.__objective_value += 1
+
+            elif self.solver.objective == Objectives.WAIT_TIME:
+                self.__objective_value += arrival_time - leg.trip.ready_time
+
+            elif self.solver.objective == Objectives.PROFIT:
+                self.__objective_value += (leg.trip.fare - (leg.trip.shortest_travel_time + travel_time_to_pick)/ 3600 * 5)
+
 
             # Calculate and add drop-off stop.
             arrival_time = departure_time + leg.trip.shortest_travel_time
@@ -325,14 +353,23 @@ class TaxiDispatcher(Dispatcher):
                     the objective value, the number of served customers, and the percentage of service.
                 """
         total_trips = self.total_customers_served + len(self.__rejected_trips)
+        if self.solver.objective == Objectives.WAIT_TIME:
+            for trip in self.__rejected_trips:
+                self.__objective_value += trip.latest_pickup - trip.ready_time
+                print(trip.id)
+
         output_dict = {
             'Algorithm': self.__algorithm.value,
             'Objective_type': self.__objective.value,
             'Objective_value' : self.objective_value.__round__(2),
             '# served customers' : self.total_customers_served,
-            '% of Service': (self.total_customers_served / total_trips * 100).__round__(1)
+            '% of Service': (self.total_customers_served / total_trips * 100).__round__(1),
+            'optimization_time': self.runtime.d_since_init()
         }
         return output_dict
+
+
+
 
 
     def process_optimized_route_plans(self, optimized_route_plans, state):

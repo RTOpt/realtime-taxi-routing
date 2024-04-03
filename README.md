@@ -10,6 +10,9 @@ The Taxi routing System is a solution designed to simulate and optimize taxi dis
 - **taxi_dispatcher.py**: Core module where the dispatching logic and algorithms are implemented.
 - **Offline_solver.py**: Contains the logic for solving dispatch scenarios in offline mode, when all the requests are known in advance.
 - **Online_solver.py**: Contains the algorithms for solving dispatch scenarios in online mode, when all the requests are not known in advance and are received online.
+- **stochastic_solver.py**: Contains the algorithms for solving dispatch scenarios using online stochastic methods.
+- **Re_optimizer.py**: Contains the algorithms for re-optimizing the problem by first destroying the current solution and then repairing it.
+- **Timer.py**: Provide the possibility to calculate runtimes.
 - **run_simulation.py**: Facilitates running simulations of the taxi dispatching system under various conditions.
 - **Run_Example.py**: An example script demonstrating how to run a basic instance of the dispatch system.
 - **Run_Tests.py**: Executes a series of tests to validate the correctness and performance of the system.

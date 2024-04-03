@@ -2,7 +2,7 @@ import os
 import logging
 import argparse
 import difflib
-from src.utilities import SolutionMode, Algorithm, Objectives, print_dict_as_table
+from src.utilities import SolutionMode, Algorithm, Objectives, DestroyMethod, print_dict_as_table
 from src.run_simulation import run_taxi_simulation
 
 
@@ -11,6 +11,7 @@ def run_example(test_folder="Med_1",
                 time_window_min=3,
                 algorithm=Algorithm.MIP_SOLVER,
                 solution_mode=SolutionMode.OFFLINE,
+                destroy_method=DestroyMethod.DEFAULT,
                 cust_node_hour=0.35,
                 nb_scenario=20,
                 known_portion=0):
@@ -34,7 +35,17 @@ def run_example(test_folder="Med_1",
         - QUALITATIVE_CONSENSUS : consensus online stochastic algorithm to assign arrival requests to vehicles
             a counter is incremented for the best request to assign at each scenario.
         - QUANTITATIVE_CONSENSUS : consensus online stochastic algorithm to assign arrival requests to vehicles
-            he best request to assign is credited by the optimal solution value, rather than merely incrementing a counter.
+            he best request to assign is credited by the optimal solution value, rather than merely incrementing a
+            counter.
+        - RE_OPTIMIZE: Algorithm to re-optimize the solution based on destroy and repair
+
+    destroy_method: Method used for destruction in re-optimizing
+        - DEFAULT: Default destruction method (Complete re-optimization)
+        - FIX_VARIABLES: fix some of the variables in the model
+        - FIX_ARRIVALS: fix a time window around the arrival time
+        - BONUS: arbitrary destroy method as bonus
+
+
     cust_node_hour: the average rate of customers per node (in the network) per hour
         - for small size tests select 0.2
         - for medium size tests select 0.3
@@ -58,14 +69,16 @@ def run_example(test_folder="Med_1",
     print("  Solution mode:", solution_mode.value)
     print("  Time window (min):", time_window_min)
     print("  Percentage known (%):", known_portion)
-    if algorithm == Algorithm.QUALITATIVE_CONSENSUS or algorithm == Algorithm.QUANTITATIVE_CONSENSUS:
+    if algorithm in [Algorithm.QUALITATIVE_CONSENSUS, Algorithm.QUANTITATIVE_CONSENSUS]:
         print("  Number of Scenario:", nb_scenario)
         print("  customers per node per hour:", cust_node_hour)
+    if algorithm == Algorithm.RE_OPTIMIZE:
+        print("  Re_optimizer Destroy method:", destroy_method.value)  # Updated print statement
     print("==================================================")
 
     # Run the simulation
     info_dict, output_dict = run_taxi_simulation(test_path, graph_file_path, algorithm, objective, solution_mode,
-                                                 time_window_min, nb_scenario, cust_node_hour, known_portion)
+                                                 time_window_min, destroy_method, nb_scenario, cust_node_hour, known_portion)
 
     # print solution
     result = {**info_dict, **output_dict}
@@ -110,8 +123,16 @@ if __name__ == '__main__':
                              "- qualitative_consensus : consensus approach to assign requests to vehicles."
                                 "(count solutions)\n"
                              "- quantitative_consensus : consensus approach to assign requests to vehicles."
-                                "(credit the solutions based o total objective)\n"
+                                "(credit the solutions based on total objective)\n"
+                             "- re_optimize: re-optimize the solution based on destroy and repair.\n"
                              "Default: mip_solver.")
+    parser.add_argument("-dm", "--dest-method", type=str, default="default",
+                        help="Method used for destruction in re-optimizing:\n"
+                             "- default: Default destruction method (Complete re-optimization)\n"
+                             "- fix_variables: fix some of the variables in the model\n"
+                             "- fix_arrivals: Fix a time window around the arrival time\n"
+                             "- bonus: arbitrary destroy method as bonus\n"
+                             "Default: default")
     parser.add_argument("-ns", "--nb-scenario", type=int, default=20,
                         help="Total number of scenarios to be solved for consensus :\n")
     parser.add_argument("-cr", "--cust-rate", type=float, default=0.21,
@@ -124,7 +145,9 @@ if __name__ == '__main__':
     sol_mode = match_enum(args.sol_mode, SolutionMode)
     obj = match_enum(args.objective, Objectives)
     algorithm = match_enum(args.algorithm, Algorithm)
+    dest_method = match_enum(args.dest_method, DestroyMethod)
 
-    run_example(args.instance, obj, args.time_window, algorithm, sol_mode,args.cust_rate, args.nb_scenario,
+
+    run_example(args.instance, obj, args.time_window, algorithm, sol_mode, dest_method, args.cust_rate, args.nb_scenario,
                 args.known_portion)
 

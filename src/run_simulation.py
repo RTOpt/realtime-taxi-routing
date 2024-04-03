@@ -8,7 +8,7 @@ from src.data_reader import TaxiDataReader
 import src.utilities as ut
 
 
-def run_taxi_simulation(test_folder, graph_file_path, algorithm, objective, solution_mode, time_window,
+def run_taxi_simulation(test_folder, graph_file_path, algorithm, objective, solution_mode, time_window, destroy_method,
                         nb_scenario, cust_node_hour, known_portion=0):
     """ Function: Conducts a simulation of taxi dispatching, based on specified parameters.
         Input:
@@ -19,6 +19,12 @@ def run_taxi_simulation(test_folder, graph_file_path, algorithm, objective, solu
             The file path to the transportation network graph.
         algorithm : Algorithm(Enum)
             The optimization algorithm to use for routing and assignment.
+        destroy_method: DestroyMethod(Enum)
+            Method used for destruction in re-optimizing
+                - DEFAULT: Default destruction method (Complete re-optimization)
+                - FIX_VARIABLES: fix some of the variables in the model
+                - FIX_ARRIVALS: fix a time window around the arrival time
+                - BONUS: arbitrary destroy method as bonus
         objective : Objectives(Enum)
             The optimization objective to achieve (e.g., profit maximization).
                 - total_Profit: total profit of served requests
@@ -50,7 +56,7 @@ def run_taxi_simulation(test_folder, graph_file_path, algorithm, objective, solu
     """
     # Run the simulation
     trips_count, vehicles_count, output_dict = run_simulation(test_folder, graph_file_path, algorithm, objective,
-                                                              solution_mode, time_window, nb_scenario,
+                                                              solution_mode, time_window, destroy_method, nb_scenario,
                                                               cust_node_hour, known_portion)
     # Compile information about the test and results
     info_dict = {
@@ -61,15 +67,17 @@ def run_taxi_simulation(test_folder, graph_file_path, algorithm, objective, solu
         'Solution Mode': solution_mode.value,
         'Known portion': known_portion,
     }
-    if algorithm == ut.Algorithm.QUALITATIVE_CONSENSUS or algorithm == ut.Algorithm.QUANTITATIVE_CONSENSUS:
+    if algorithm in [ut.Algorithm.QUALITATIVE_CONSENSUS, algorithm == ut.Algorithm.QUANTITATIVE_CONSENSUS]:
         info_dict.update({'# Scenarios': nb_scenario,
                           'customer rate': cust_node_hour})
+    if algorithm == ut.Algorithm.RE_OPTIMIZE:
+        info_dict.update({'# Destroy Method': destroy_method.value})
 
 
     return info_dict, output_dict
 
 
-def run_simulation(test_folder, graph_file_path, algorithm, objective, solution_mode, time_window,
+def run_simulation(test_folder, graph_file_path, algorithm, objective, solution_mode, time_window, destroy_method,
                    nb_scenario, cust_node_hour, known_portion):
     """ Function: Conducts a simulation of taxi dispatching, based on specified parameters.
         Input:
@@ -80,6 +88,12 @@ def run_simulation(test_folder, graph_file_path, algorithm, objective, solution_
             The file path to the transportation network graph.
         algorithm : Algorithm(Enum)
             The optimization algorithm to use for routing and assignment.
+        destroy_method: DestroyMethod(Enum)
+            Method used for destruction in re-optimizing
+                - DEFAULT: Default destruction method (Complete re-optimization)
+                - FIX_VARIABLES: fix some of the variables in the model
+                - FIX_ARRIVALS: fix a time window around the arrival time
+                - BONUS: arbitrary destroy method as bonus
         objective : Objectives(Enum)
             The optimization objective to achieve (e.g., profit maximization).
                 - total_Profit: total profit of served requests
@@ -131,13 +145,13 @@ def run_simulation(test_folder, graph_file_path, algorithm, objective, solution_
     else:
         network_graph = data_reader.get_json_graph()
         data_reader.save_graph(os.path.dirname(graph_file_path))
-    ut.draw_network(network_graph, os.path.dirname(graph_file_path))
+#    ut.draw_network(network_graph, os.path.dirname(graph_file_path))
     vehicles, routes_by_vehicle_id = data_reader.get_json_vehicles()
     trips = data_reader.get_json_trips(solution_mode, time_window, known_portion)
 
     # Initialize simulation components
     dispatcher = TaxiDispatcher(network_graph, algorithm, objective, vehicles, solution_mode, nb_scenario,
-                                cust_node_hour)
+                                cust_node_hour, destroy_method)
     opt = Optimization(dispatcher)
     environment_observer = StandardEnvironmentObserver()
 

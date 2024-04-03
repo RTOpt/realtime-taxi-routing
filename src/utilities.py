@@ -36,7 +36,8 @@ class Algorithm(Enum):
         - QUALITATIVE_CONSENSUS : consensus online stochastic algorithm to assign arrival requests to vehicles
             a counter is incremented for the best request to assign at each scenario.
         - QUANTITATIVE_CONSENSUS : consensus online stochastic algorithm to assign arrival requests to vehicles
-            he best request to assign is credited by the optimal solution value, rather than merely incrementing a counter.
+            the best request to assign is credited by the optimal solution value, rather than merely incrementing a counter.
+        - RE_OPTIMIZE: Algorithm to re-optimize the solution based on destroy and repair
     """
     MIP_SOLVER = "MIP_SOLVER"
     GREEDY = "GREEDY"
@@ -44,6 +45,21 @@ class Algorithm(Enum):
     RANKING = "RANKING"
     QUALITATIVE_CONSENSUS = "QUALITATIVE_CONSENSUS"
     QUANTITATIVE_CONSENSUS = "QUANTITATIVE_CONSENSUS"
+    RE_OPTIMIZE = "RE_OPTIMIZE"
+
+
+class DestroyMethod(Enum):
+    """ Method used for destruction in RE_OPTIMIZE algorithm
+        - DEFAULT: Default destruction method (Complete re-optimization)
+        - FIX_VARIABLES: fix some of the variables in the model
+        - FIX_ARRIVALS: fix a time window around the arrival time
+        - BONUS: arbitrary destroy method as bonus
+    """
+    DEFAULT = "default"
+    FIX_ARRIVALS = "fix_arrivals"
+    FIX_VARIABLES = "fix_variables"
+    BONUS = "bonus"
+
 
 
 def get_distances(G):

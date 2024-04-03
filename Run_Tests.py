@@ -2,7 +2,7 @@ import os
 import logging
 import pandas as pd
 
-from src.utilities import SolutionMode, Algorithm, Objectives, print_dict_as_table
+from src.utilities import SolutionMode, Algorithm, Objectives, DestroyMethod, print_dict_as_table
 from src.run_simulation import run_taxi_simulation
 
 
@@ -27,14 +27,28 @@ if __name__ == '__main__':
         - QUALITATIVE_CONSENSUS : consensus online stochastic algorithm to assign arrival requests to vehicles
             a counter is incremented for the best request to assign at each scenario.
         - QUANTITATIVE_CONSENSUS : consensus online stochastic algorithm to assign arrival requests to vehicles
-            he best request to assign is credited by the optimal solution value, rather than merely incrementing a counter.  
+            he best request to assign is credited by the optimal solution value, rather than merely incrementing a 
+            counter. 
+        - RE_OPTIMIZE: Algorithm to re-optimize the solution based on destroy and repair
+        
+    destroy_method: Method used for destruction in re-optimizing
+        - DEFAULT: Default destruction method (Complete re-optimization)
+        - FIX_VARIABLES: fix some of the variables in the model
+        - FIX_ARRIVALS: fix a time window around the arrival time
+        - BONUS: arbitrary destroy method as bonus
     """
-    algorithms = [Algorithm.GREEDY, Algorithm.RANDOM, Algorithm.RANKING]
-    solution_modes = [SolutionMode.ONLINE, SolutionMode.FULLY_ONLINE]
-    objectives = [Objectives.WAIT_TIME, Objectives.PROFIT, Objectives.TOTAL_CUSTOMERS]
+    # set the algorithm to test
+    algorithms = [Algorithm.RE_OPTIMIZE]
+
+    # set the solution mode
+    solution_modes = [SolutionMode.ONLINE, SolutionMode.PARTIAL]
+    destroy_methods = [DestroyMethod.FIX_VARIABLES, DestroyMethod.FIX_ARRIVALS, DestroyMethod.DEFAULT]
+
+    objectives = [Objectives.PROFIT]
+
     # time window in minute
-    time_windows = [1, 3, 6]
-    known_portion = 0
+    time_windows = [6]
+    known_portions = [0.25, 0.5]
     cust_node_hour = 0.2
     nb_scenario = 5
 
@@ -48,30 +62,33 @@ if __name__ == '__main__':
                 for solution_mode in solution_modes:
                     for objective in objectives:
                         for time_window in time_windows:
-                            try:
-                                print("==================================================")
-                                print("Run taxi simulation with:")
-                                print("  Instance:", test_folder)
-                                print("  Algorithm:", algorithm.value)
-                                print("  Objective:", objective.value)
-                                print("  Solution mode:", solution_mode.value)
-                                print("  Time window (min):", time_window)
-                                print("  Percentage known (%):", known_portion)
-                                if algorithm == Algorithm.QUALITATIVE_CONSENSUS or algorithm == Algorithm.QUANTITATIVE_CONSENSUS:
-                                    print("  Number of Scenario:", nb_scenario)
-                                    print("  customers per node per hour:", cust_node_hour)
-                                print("==================================================")
-                                info_dict, output_dict = run_taxi_simulation(
-                                    test_path, graph_file_path, algorithm, objective, solution_mode, time_window,
-                                    nb_scenario, cust_node_hour, known_portion)
+                            for destroy_method in destroy_methods:
+                                known_portions_to_run = known_portions if solution_mode == SolutionMode.PARTIAL else [0]
+                                for known_portion in known_portions_to_run:
+                                    try:
+                                        print("==================================================")
+                                        print("Run taxi simulation with:")
+                                        print("  Instance:", test_folder)
+                                        print("  Algorithm:", algorithm.value)
+                                        print("  Objective:", objective.value)
+                                        print("  Solution mode:", solution_mode.value)
+                                        print("  Time window (min):", time_window)
+                                        print("  Percentage known (%):", known_portion)
+                                        if algorithm in [Algorithm.QUALITATIVE_CONSENSUS , Algorithm.QUANTITATIVE_CONSENSUS]:
+                                            print("  Number of Scenario:", nb_scenario)
+                                            print("  customers per node per hour:", cust_node_hour)
+                                        print("==================================================")
+                                        info_dict, output_dict = run_taxi_simulation(
+                                            test_path, graph_file_path, algorithm, objective, solution_mode, time_window,
+                                            destroy_method, nb_scenario, cust_node_hour, known_portion)
 
-                            except Exception as e:
-                                print(e)
-                                continue
+                                    except Exception as e:
+                                        print(e)
+                                        continue
 
-                            # print solution
-                            results.append({**info_dict, **output_dict})
-                            print_dict_as_table(results[-1])
+                                    # print solution
+                                    results.append({**info_dict, **output_dict})
+                                    print_dict_as_table(results[-1])
 
     # Convert results to DataFrame
     df = pd.DataFrame(results)
