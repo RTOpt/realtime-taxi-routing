@@ -357,7 +357,6 @@ class TaxiDispatcher(Dispatcher):
         if self.solver.objective == Objectives.WAIT_TIME:
             for trip in self.__rejected_trips:
                 self.__objective_value += trip.latest_pickup - trip.ready_time
-                print(trip.id)
 
         output_dict = {
             'Algorithm': self.__algorithm.value,
