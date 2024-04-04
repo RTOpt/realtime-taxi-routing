@@ -41,16 +41,16 @@ if __name__ == '__main__':
     algorithms = [Algorithm.RE_OPTIMIZE]
 
     # set the solution mode
-    solution_modes = [SolutionMode.ONLINE, SolutionMode.PARTIAL]
-    destroy_methods = [DestroyMethod.FIX_VARIABLES, DestroyMethod.FIX_ARRIVALS, DestroyMethod.DEFAULT]
+    solution_modes = [SolutionMode.PARTIAL, SolutionMode.ONLINE]
+    destroy_methods = [DestroyMethod.DEFAULT, DestroyMethod.FIX_ARRIVALS, DestroyMethod.FIX_VARIABLES]
 
     objectives = [Objectives.PROFIT]
 
     # time window in minute
     time_windows = [6]
     known_portions = [0.25, 0.5]
-    cust_node_hour = 0.2
-    nb_scenario = 5
+    cust_node_hour = 0.3
+    nb_scenarios = [1,2]
 
     results = []
 
@@ -65,30 +65,32 @@ if __name__ == '__main__':
                             for destroy_method in destroy_methods:
                                 known_portions_to_run = known_portions if solution_mode == SolutionMode.PARTIAL else [0]
                                 for known_portion in known_portions_to_run:
-                                    try:
-                                        print("==================================================")
-                                        print("Run taxi simulation with:")
-                                        print("  Instance:", test_folder)
-                                        print("  Algorithm:", algorithm.value)
-                                        print("  Objective:", objective.value)
-                                        print("  Solution mode:", solution_mode.value)
-                                        print("  Time window (min):", time_window)
-                                        print("  Percentage known (%):", known_portion)
-                                        if algorithm in [Algorithm.QUALITATIVE_CONSENSUS , Algorithm.QUANTITATIVE_CONSENSUS]:
-                                            print("  Number of Scenario:", nb_scenario)
-                                            print("  customers per node per hour:", cust_node_hour)
-                                        print("==================================================")
-                                        info_dict, output_dict = run_taxi_simulation(
-                                            test_path, graph_file_path, algorithm, objective, solution_mode, time_window,
-                                            destroy_method, nb_scenario, cust_node_hour, known_portion)
+                                    nb_scenario_to_run = nb_scenarios if algorithm in [Algorithm.QUALITATIVE_CONSENSUS, Algorithm.QUANTITATIVE_CONSENSUS] else [0]
+                                    for nb_scenario in nb_scenario_to_run:
+                                        try:
+                                            print("==================================================")
+                                            print("Run taxi simulation with:")
+                                            print("  Instance:", test_folder)
+                                            print("  Algorithm:", algorithm.value)
+                                            print("  Objective:", objective.value)
+                                            print("  Solution mode:", solution_mode.value)
+                                            print("  Time window (min):", time_window)
+                                            print("  Percentage known (%):", known_portion)
+                                            if algorithm in [Algorithm.QUALITATIVE_CONSENSUS , Algorithm.QUANTITATIVE_CONSENSUS]:
+                                                print("  Number of Scenario:", nb_scenario)
+                                                print("  customers per node per hour:", cust_node_hour)
+                                            print("==================================================")
+                                            info_dict, output_dict = run_taxi_simulation(
+                                                test_path, graph_file_path, algorithm, objective, solution_mode, time_window,
+                                                destroy_method, nb_scenario, cust_node_hour, known_portion)
 
-                                    except Exception as e:
-                                        print(e)
-                                        continue
+                                        except Exception as e:
+                                            print(e)
+                                            continue
 
-                                    # print solution
-                                    results.append({**info_dict, **output_dict})
-                                    print_dict_as_table(results[-1])
+                                        # print solution
+                                        results.append({**info_dict, **output_dict})
+                                        print_dict_as_table(results[-1])
 
     # Convert results to DataFrame
     df = pd.DataFrame(results)

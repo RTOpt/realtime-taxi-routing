@@ -261,11 +261,12 @@ class TaxiDispatcher(Dispatcher):
 
             route = state.route_by_vehicle_id[
                 veh_trips_assignment["vehicle"].id]
-            route_plan = self.__create_route_plan(route, trip_ids,
-                                                  veh_trips_assignment['departure_stop'],
-                                                  next_leg_by_trip_id,
-                                                  current_time)
-            route_plans_list.append(route_plan)
+            if self.solution_mode == SolutionMode.OFFLINE or len(route.next_stops) <= 1:
+                route_plan = self.__create_route_plan(route, trip_ids,
+                                                      veh_trips_assignment['departure_stop'],
+                                                      next_leg_by_trip_id,
+                                                      current_time)
+                route_plans_list.append(route_plan)
 
         return route_plans_list
 
@@ -304,17 +305,18 @@ class TaxiDispatcher(Dispatcher):
 
 
         for index, trip_id in enumerate(trip_ids):
-            if self.solution_mode != SolutionMode.OFFLINE and (
-                    len(route.next_stops) > 1 or len(route_plan.assigned_legs) > 0):
+            if self.solution_mode != SolutionMode.OFFLINE and len(route_plan.assigned_legs) > 0:
                 break
 
             leg = next_leg_by_trip_id[trip_id]
-            route_plan.assign_leg(leg)
+
             # Calculate and add pick-up stop.
             travel_time_to_pick = self.__network.nodes[departure_stop_id]['shortest_paths'][
                 leg.trip.origin.label]['total_duration']
             arrival_time = departure_time + travel_time_to_pick
             if arrival_time < leg.trip.ready_time:
+                if self.solution_mode == SolutionMode.PARTIAL:
+                    break
                 # If the vehicle arrives earlier than the ready time, adjust departure to align with the ready time.
                 if len(route_plan.next_stops) == 0:
                     route_plan.update_current_stop_departure_time(current_time + leg.trip.ready_time - arrival_time)
@@ -323,7 +325,7 @@ class TaxiDispatcher(Dispatcher):
                 arrival_time = leg.trip.ready_time
             departure_time = arrival_time
             route_plan.append_next_stop(leg.trip.origin.label, arrival_time, departure_time, legs_to_board=[leg])
-
+            route_plan.assign_leg(leg)
             # update objectives
             self.__total_customers_served += 1
             if self.solver.objective == Objectives.TOTAL_CUSTOMERS:
