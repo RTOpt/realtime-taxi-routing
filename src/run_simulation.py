@@ -67,7 +67,7 @@ def run_taxi_simulation(test_folder, graph_file_path, algorithm, objective, solu
         'Solution Mode': solution_mode.value,
         'Known portion': known_portion,
     }
-    if algorithm in [ut.Algorithm.QUALITATIVE_CONSENSUS, algorithm == ut.Algorithm.QUANTITATIVE_CONSENSUS]:
+    if algorithm in [ut.Algorithm.QUALITATIVE_CONSENSUS, ut.Algorithm.QUANTITATIVE_CONSENSUS]:
         info_dict.update({'# Scenarios': nb_scenario,
                           'customer rate': cust_node_hour})
     if algorithm == ut.Algorithm.RE_OPTIMIZE:
