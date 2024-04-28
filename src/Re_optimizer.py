@@ -137,8 +137,8 @@ class ReOptimizer(Solver):
 
         """
         # Extracting values of decision variables
-        Y = {key[0]: {key[1]: var.X for key, var in Y_var.items() if key[0] == key[1]} for key in Y_var}
-        X = {key[0]: {key[1]: var.X for key, var in X_var.items() if key[0] == key[1]} for key in X_var}
+        Y = {key1[0]: {key[1]: var.X for key, var in Y_var.items() if key[0] == key1[1]} for key1 in Y_var}
+        X = {key1[0]: {key[1]: var.X for key, var in X_var.items() if key[0] == key1[1]} for key1 in X_var}
         Z = {key: var.X for key, var in Z_var.items()}
         U = {key: var.X for key, var in U_var.items()}
 
