@@ -4,17 +4,11 @@ import logging
 from multimodalsim.optimization.optimization import OptimizationResult
 from multimodalsim.simulator.vehicle import Stop, LabelLocation
 
-from src.Re_optimizer import ReOptimizer
-from src.utilities import Algorithm, Objectives, SolutionMode, get_costs, get_durations
 
 logger = logging.getLogger(__name__)
 
 from multimodalsim.optimization.dispatcher import Dispatcher
-from src.Offline_solver import (create_model, define_objective_total_customers,define_objective_total_profit,
-                                define_objective_total_wait_time, solve_offline_model, define_objective)
-from src.constraints_and_objectives import variables_declaration
-from src.Online_solver import OnlineSolver
-from src.stochastic_solver import StochasticSolver
+from src.utilities import Algorithm, Objectives, SolutionMode, get_costs, get_durations
 from src.solver import Solver
 from src.Timer import Timer
 
@@ -81,11 +75,14 @@ class TaxiDispatcher(Dispatcher):
             self.__solver = Solver(network, algorithm, objective, vehicles)
         else:
             if algorithm in [Algorithm.QUALITATIVE_CONSENSUS , Algorithm.QUANTITATIVE_CONSENSUS]:
+                from src.stochastic_solver import StochasticSolver
                 self.__solver = StochasticSolver(network, algorithm, objective, vehicles, nb_scenario,
                                                         cust_node_hour)
             elif algorithm == Algorithm.RE_OPTIMIZE:
+                from src.Re_optimizer import ReOptimizer
                 self.__solver = ReOptimizer(network, algorithm, objective, vehicles, destroy_method)
             else:
+                from src.Online_solver import OnlineSolver
                 self.__solver = OnlineSolver(network, algorithm, objective, vehicles)
 
 
@@ -205,6 +202,8 @@ class TaxiDispatcher(Dispatcher):
         costs = get_costs(self.__network)
 
         if self.__algorithm == Algorithm.MIP_SOLVER:
+            from src.Offline_solver import create_model, solve_offline_model, define_objective
+
             # create model
             model, Y_var, X_var, Z_var, U_var = create_model(vehicles, trips, durations,
                                                              self.solver.vehicle_request_assign)
@@ -218,6 +217,8 @@ class TaxiDispatcher(Dispatcher):
                                             self.__rejected_trips, self.solver.vehicle_request_assign)
 
         else:
+            from src.constraints_and_objectives import variables_declaration
+
             K = [vehicle_dict['vehicle'] for vehicle_dict in self.solver.vehicle_request_assign.values()]
             X, Y, U, Z = variables_declaration(K, trips)
             if self.__algorithm == Algorithm.QUALITATIVE_CONSENSUS or self.__algorithm == Algorithm.QUANTITATIVE_CONSENSUS:
