@@ -2,21 +2,34 @@
 
 The Taxi routing System is a solution designed to simulate and optimize taxi dispatching operations. This project requires the `multimodalsim` package for simulation and optimization of multimodal transportation systems. 
 
-## Modules
+## Key Features
 
-- **data_reader.py**: Handles input data reading and preprocessing.
+- Handles offline, online, and stochastic optimization scenarios for taxi dispatching.
+- Supports re-optimization with destruction and repair methods.
+- Includes utilities for request generation, vehicle management, and runtime measurements.
+
+## Modules
+### simulation
+- **data_reader.py**: Manages input data reading and preprocessing.
 - **RideRequest.py**: Defines the `RideRequest` class and associated methods.
-- **utilities.py**: Provides utility functions used across the system.
+- **run_simulation.py**: Facilitates running simulations of the taxi dispatching system under various conditions.
 - **taxi_dispatcher.py**: Core module where the dispatching logic and algorithms are implemented.
-- **Offline_solver.py**: Contains the logic for solving dispatch scenarios in offline mode, when all the requests are known in advance.
+### utilities
+- **config.py**: Defines a configuration class (`SimulationConfig`) for customizing the simulation setup.
+- **enums.py**: Enumerates objectives, solution modes, algorithms, and other constants used across the system.
+- **tools.py**: Includes functions for calculating network distances, durations, costs, and visualization utilities.
+- **Timer.py**: Provide the possibility to calculate runtimes.
+- **test_generator.py**: Generates synthetic requests and vehicles for testing purposes.
+### solvers
+- **solver.py**: Baseline solver class that provides a foundation for other solver implementations.
+- **Offline_solver.py**: Contains an MIP solver for solving dispatch scenarios in offline mode, when all the requests are known in advance.
 - **Online_solver.py**: Contains the algorithms for solving dispatch scenarios in online mode, when all the requests are not known in advance and are received online.
 - **stochastic_solver.py**: Contains the algorithms for solving dispatch scenarios using online stochastic methods.
 - **Re_optimizer.py**: Contains the algorithms for re-optimizing the problem by first destroying the current solution and then repairing it.
-- **Timer.py**: Provide the possibility to calculate runtimes.
-- **run_simulation.py**: Facilitates running simulations of the taxi dispatching system under various conditions.
-- **Run_Example.py**: An example script demonstrating how to run a basic instance of the dispatch system.
-- **Run_Tests.py**: Executes a series of tests to validate the correctness and performance of the system.
-
+### run_test
+- **create_instances.py**: Contains functions to generate instances.
+- **create_plots.py**: Contains functions for plot generation based on user-specified metrics.
+- **run_test.py**: Contains functions to run a single test or multiple scenario-based tests.
 
 ## multimodalsim Package Overview
 
@@ -89,31 +102,42 @@ Set up the simulation with all components and execute it.
 # Installation and Setup
 
 ## Prerequisites
-- Python 3.x: The system is developed and tested with Python 3.x. Ensure you have it installed on your system. You can download it from [the official Python website](https://www.python.org/).
+- **Python 3.x**: Ensure you have Python 3.x installed on your system. You can download it from [the official Python website](https://www.python.org/).
+- **Git**: Make sure Git is installed to clone the repository and initialize submodules.
 
 ## Setting Up the Environment
-1. **Clone the Repository**: Start by cloning the repository to your local machine. Use the following command:
-   ```bash
-   git clone https://github.com/RTOpt/realtime-taxi-routing.git
+1. **Clone the Repository with Submodules**: Start by cloning the repository to your local machine and initializing its submodules. Use the following command:
+
+    ```bash
+    git clone --recurse-submodules https://github.com/RTOpt/realtime_taxi_routing.git
+    cd realtime_taxi_routing
+    ```
+
+    If you forgot to use `--recurse-submodules`, you can initialize the submodules later:
+
+    ```bash
+    git submodule update --init --recursive
+    ```
 
 2. **Create a Virtual Environment (Optional but Recommended)**:
 It's a best practice to create a virtual environment for your project to avoid conflicts with system-wide Python packages. Use the following commands to navigate to the project directory and create the environment. Replace [project-directory] with the address of the place you have saved the project.
     ```bash
     cd [project-directory]/realtime-taxi-routing
     python -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-   
-3. **Instal the required packages**: Install the following packages if they are not installed on your system:
+    source venv/bin/activate  # On Windows use `venv\Scripts\activate` 
+
+3. **Install the Multimodal Simulator**: Use the following command to install the `multimodal-simulator`:
+
     ```bash
-    pip install wheel setuptools pip --upgrade
-    pip install tabulate
-    pip install scipy
-   
-4. **Installing the `multimodalsim` Package**: Execute the following commands to navigate to the package directory and install the package and requited dependencies:
+    pip install ./multimodal-simulator/python
+    ```
+4. **Instal Required Dependencies**: Install the dependencies for the project, including the `multimodalsim` submodule:
     ```bash
-    cd multimodal-simulator/python
-    python setup.py install
-   
+    pip install .
+    ```
+
+    This will automatically install all required Python packages and the`multimodal-simulator`, submodule.
+     
 5. **Using the Virtual Environment as the Python Interpreter**: After setting up the virtual environment, it's essential to ensure that your IDE or code editor is configured to use the Python interpreter from the virtual environment. Follow the steps below to select the Python interpreter from the virtual environment
 
 #### PyCharm:
@@ -156,30 +180,142 @@ For the most up-to-date and detailed installation instructions, please refer to 
 **Note**: The process for obtaining a Gurobi license may change, and the terms of use for Gurobi software are subject to Gurobi's licensing agreement. Ensure you comply with all license terms and conditions.
 
 ## Testing the simulator
+### Configuration File
+To run the simulations, the inputs are provided in a JSON file(`inputs.json`). This file specifies whether to run a single test or multiple scenario-based tests. The `task_type` key determines the mode:
 
-Finally, to test the simulator, you can run the file Run_Example.py at the root of the project directory:
-  ```bash
-  cd [project-directory]/realtime-taxi-routing
-  python Run_Example.py
-  ```
+- **single_test:** Executes one test instance.
+- **scenarios:** Runs a series of predefined scenario sets.
+    
+### Running a Single Test
+To run a single test:
 
-You should obtain similar results for the default arguments:
+1. Configure your `inputs.json` file by specifying the `task_type` as `"single_test"` and providing the required parameters within the `"single_test"` block.
+2. Navigate to the root project directory and run:
+   ```bash
+   cd [project-directory]/realtime-taxi-routing
+   python main.py
+
+This executes a single test as defined in your `inputs.json`.
+
+### Running Scenarios
+1. Set `task_type` to `"scenarios"` in the `inputs.json` file.
+2. Determine a scenario to run 
+3. Execute the scenario(s) using:
+   ```bash
+   python main.py -sn <SCENARIO_NAME>
+   ```
+    Replace `<SCENARIO_NAME>` with the name of the scenario you wish to run, for example:
+   ```bash
+   python main.py -sn TP2
+   ```
+    This will run all parameter combinations defined for the given scenario and save the results to a CSV file in the `data/Instances/Results` directory.
+### Creating Plots
+1. Set `task_type` to `"create_plot"` in the `inputs.json` file.
+2. Determine the scenario to create the plot(s), ensure results are available and run: 
+   ```bash
+   python main.py -sn <SCENARIO_NAME>
+   ```
+### Generating Instances
+Configure parameters in `inputs.json` and run:
+```bash
+   python main.py
+   ```
+## Configuration of Parameters
+The following parameters can be specified in `inputs.json`:
+### task_type
+- **Description:** Determines the type of execution.
+- **Options:** `single_test`, `scenarios`
+
+### instances
+- **Description:** Folder name of the instance to test.
+- **Example:** `"Med_1"`
+
+### objectives
+- **Description:** Defines the optimization objective to achieve (Default: `"total_customers"`).
+- **Options:**
+  - `"total_profit"`: Maximizes the total profit of served requests.
+  - `"waiting_time"`: Minimizes the total wait time of served requests.
+  - `"total_customers"`: Maximizes the total number of served customers.
+
+
+### algorithms
+- **Description:** Selects the algorithm to optimize the dispatch plan (Default: `"mip_solver"`).
+- **Options:**
+  - `"mip_solver"`: Uses the Gurobi MIP solver to solve the problem.
+  - `"greedy"`: Greedy approach to assign requests to vehicles.
+  - `"random"`: Random approach to assign requests to vehicles.
+  - `"ranking"`: Ranking approach to assign requests to vehicles.
+  - `"consensus"`: Consensus approach to assign requests to vehicles.
+  - `"re_optimize"`: Re-optimize the solution based on destroy and repair.
+
+### solution_mode
+- **Description:** Sets how requests become available (Default: `"offline"`).
+- **Options:**
+  - `"offline"`: All requests are known at the start.
+  - `"fully_online"`: Release time is equal to the ready time for all requests.
+  - `"advance_notice"`: Requests become known 30 minutes before the ready time.
+  - `"partial_online"`: A percentage of requests are known in adavnce.
+  - `"custom_scenario"`: A mix of advance_notice and partial_online.
+
+### known-portion
+- **Description:** Percentage of requests that are known in advance (0-100%).
+- **Applicable if:** `solution_mode` is `"partial_online"` or `"custom_scenario"`.
+
+### time_window
+- **Description:** Time window (in minutes) to serve each request (Default: `3`).
+
+### nb_scenario
+- **Description:** Number of scenarios for the consensus algorithm (Default: `10`).
+- **Applicable if:** `algorithms` is `"consensus"`.
+
+### consensus_params
+- **Description:** Type of consensus approach (Default: `"quantitative"`).
+- **Applicable if:** `algorithms` is `"consensus"`.
+- **Options:**
+  - `"qualitative"`: Increment a counter for the best request in each scenario.
+  - `"quantitative"`: Credit the best request with the optimal solution value.
+
+### dest_method
+- **Description:** Destruction method for re-optimization (Default: `"default"`).
+- **Applicable if:** `algorithms` is `"re_optimize"`.
+- **Options:**
+  - `"default"`: Default destruction method (Complete re-optimization).
+  - `"fix_variables"`: Fix some of the variables in the model
+  - `"fix_arrivals"`: Fix a time window around the arrival time
+  - `"bonus"`: Arbitrary destroy method as bonus
+
+With default parameters you should obtain the following results (except for the optimization_time):
   ```console
-    Attribute            | Value
-    --------------------+----------------------
-    Test                 | data/Instances/Med_1
-    # Trips              | 72
-    # Vehicles           | 20
-    Time window (min)    | 3
-    Solution Mode        | offline
-    Algorithm            | MIP_SOLVER
-    Objective_type       | total_customers
-    Objective_value      | 61.0
-    # served customers   | 61
-    % of Service         | 84.7
+    Attribute              | Value
+    ----------------------+---------------------------
+    Key                    | Med_1__3__total_customers
+    Test                   | Med_1
+    # Trips                | 72
+    # Vehicles             | 20
+    Solution Mode          | offline
+    Known portion (%)      | 100
+    Time window (min)      | 3
+    Algorithm              | MIP_Solver
+    Objective type         | total_customers
+    Objective value        | 61.0
+    # Served customers     | 61
+    Average profit         | 1017.79
+    Average waiting time   | 56.46
+    % of Service           | 84.7
+    optimization_time      | 0.251
   ```
 
-For more information on the arguments, you may run:
-  ```bash
-  python Run_Example.py -h
-  ```
+
+Below is the explanation for the parameters used to generate instances:
+
+- **num_suburbs (int)**:
+  Determines the number of suburban areas surrounding the main city.
+
+- **suburb_width (int)**:
+  Indicates the size of each suburban area as a square grid. For example, `suburb_width = 4` creates a 4x4 grid of nodes for each suburb.
+
+- **city_width (int)**:
+  Defines the size of the central city as a square grid. For example, `city_width = 8` results in an 8x8 grid for the main city.
+
+- **block_distance (float)**:
+  Specifies the distance (in meters) between adjacent nodes within the city and the suburbs. Larger values produce a more spatially extensive network, increasing travel times between nodes.

@@ -1,0 +1,182 @@
+{
+  "task_type": "single_test",
+  "single_test": {
+    "instances": "2-Med_1",
+    "objectives": "total_customer",
+    "algorithms": "mip-solver",
+    "solution_mode": "offline",
+    "time_windows": 3,
+    "known_portion": 25,
+    "nb_scenario": 3,
+    "consensus_params": "qualitative",
+    "destroy_method": "fix_arrivals"
+  },
+  "scenarios": [
+    {
+      "scenario": "initial_test",
+      "parameters": {
+        "instances": ["1-Low_1", "1-Low_2", "1-Low_3", "2-Med_1", "2-Med_2", "2-Med_3", "3-High_1", "3-High_2", "3-High_3"],
+        "objectives": ["total_customers"],
+        "algorithms": ["mip_solver"],
+        "solution_mode": ["offline"],
+        "time_windows": [3]
+      }
+    },
+    {
+      "scenario": "TP1",
+      "parameters": {
+        "instances": ["1-Low_1", "1-Low_2", "1-Low_3", "2-Med_1", "2-Med_2", "2-Med_3", "3-High_1", "3-High_2", "3-High_3"],
+        "objectives": ["total_profit", "waiting_time", "total_customers"],
+        "algorithms": ["mip_solver"],
+        "solution_mode": ["offline"],
+        "time_windows": [1, 3, 6]
+      }
+    },
+    {
+      "scenario": "TP2_1",
+      "parameters": {
+        "instances": ["1-Low_1", "1-Low_2", "1-Low_3", "2-Med_1", "2-Med_2", "2-Med_3", "3-High_1", "3-High_2", "3-High_3"],
+        "objectives": ["total_profit"],
+        "algorithms": ["re_optimize"],
+        "solution_mode": ["partial_online"],
+        "known_portion": [25,50],
+        "time_windows": [6],
+        "destroy_method": ["default", "fix_variables","fix_arrivals"]
+      }
+    },
+    {
+      "scenario": "TP2_2",
+      "parameters": {
+        "instances": ["1-Low_1", "1-Low_2", "1-Low_3", "2-Med_1", "2-Med_2", "2-Med_3", "3-High_1", "3-High_2", "3-High_3"],
+        "objectives": ["total_profit"],
+        "algorithms": ["re_optimize"],
+        "solution_mode": ["advance_notice"],
+        "time_windows": [6],
+        "destroy_method": ["default", "fix_variables","fix_arrivals"]
+      }
+    },
+    {
+      "scenario": "TP3",
+      "parameters": {
+        "instances": ["1-Low_1", "1-Low_2", "1-Low_3", "2-Med_1", "2-Med_2", "2-Med_3", "3-High_1", "3-High_2", "3-High_3"],
+        "objectives": ["total_profit", "waiting_time", "total_customers"],
+        "algorithms": ["greedy", "random","ranking"],
+        "solution_mode": ["fully_online","advance_notice"],
+        "time_windows": [1, 3, 6]
+      }
+    },
+    {
+      "scenario": "TP4_scenario",
+      "parameters": {
+        "instances": ["2-Med_3"],
+        "objectives": ["total_profit"],
+        "algorithms": ["consensus"],
+        "solution_mode": ["fully_online"],
+        "time_windows": [3],
+        "nb_scenario": [3,4,5,6,7,8,9,10,11,12,13,14,15],
+        "consensus_params": ["quantitative","qualitative"]
+      }
+    },
+    {
+      "scenario": "TP4_CONSENSUS",
+      "parameters": {
+        "instances": ["1-Low_1", "1-Low_2", "1-Low_3", "2-Med_1", "2-Med_2", "2-Med_3", "3-High_1", "3-High_2", "3-High_3"],
+        "objectives": ["total_profit"],
+        "algorithms": ["consensus"],
+        "solution_mode": ["partial_online"],
+        "known_portion": [0, 25, 50],
+        "time_windows": [3],
+        "nb_scenario": [11],
+        "consensus_params": ["quantitative","qualitative"]
+      }
+    },
+    {
+      "scenario": "TP4_GREEDY",
+      "parameters": {
+        "instances": ["1-Low_1", "1-Low_2", "1-Low_3", "2-Med_1", "2-Med_2", "2-Med_3", "3-High_1", "3-High_2", "3-High_3"],
+        "objectives": ["total_profit"],
+        "algorithms": ["greedy"],
+        "solution_mode": ["partial_online"],
+        "known_portion": [0, 25, 50],
+        "time_windows": [3]
+      }
+    }
+  ],
+  "create_plot": [
+    {
+      "scenario": "TP1",
+      "plots":[
+        {
+          "plot_name": "offline_plot",
+          "metrics": ["% of Service","Average profit ($)","Average waiting time (s)"]
+        }
+      ]
+    },
+    {
+      "scenario": "TP2",
+      "plots":[
+        {
+          "plot_name": "compare_algorithm_plot",
+          "metrics": ["Competitive Ratio","optimization_time (s)"]
+        },
+        {
+          "plot_name": "compare_algorithm_plot",
+          "metrics": ["% of Service","Average profit ($)","Average waiting time (s)"]
+        }
+      ]
+    },
+    {
+      "scenario": "TP3",
+      "plots":[
+        {
+          "plot_name": "compare_algorithm_plot",
+          "metrics": ["% of Service","Average profit ($)","Average waiting time (s)"]
+        },
+        {
+          "plot_name": "compare_timeWindow_plot",
+          "metrics": ["Competitive Ratio"]
+        },
+        {
+          "plot_name": "compare_timeWindow_plot",
+          "metrics": ["Objective value"]
+        }
+      ]
+    },
+    {
+      "scenario": "TP4_scenario",
+      "plots":[
+        {
+          "plot_name": "number_scenarios",
+          "metrics": ["Objective value"]
+        }
+      ]
+    },
+    {
+      "scenario": "TP4",
+      "plots":[
+        {
+          "plot_name": "compare_algorithm_plot",
+          "metrics": ["Competitive Ratio","optimization_time (s)"]
+        },
+        {
+          "plot_name": "compare_algorithm_plot",
+          "metrics": ["% of Service","Average profit ($)","Average waiting time (s)"]
+        }
+      ]
+    }
+  ],
+  "create_instance": {
+    "group_name": ["1-Low", "2-Med", "3-High"],
+    "num_tests_per_group": 3,
+    "num_suburbs": 8,
+    "suburb_width": 4,
+    "city_width": 8,
+    "block_distance": 900.0,
+    "start_time": 0.0,
+    "hour_fare": 80.0,
+    "known_portion": 0,
+    "advance_notice": 30,
+    "sim_time": 3600,
+    "nb_vehicles": 20
+  }
+}

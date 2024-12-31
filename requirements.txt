@@ -1,0 +1,6 @@
+gurobipy
+scipy
+matplotlib==3.8
+seaborn
+scipy
+tabulate
