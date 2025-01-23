@@ -110,7 +110,7 @@ Set up the simulation with all components and execute it.
 
     ```bash
     git clone https://github.com/RTOpt/realtime-taxi-routing.git
-    cd realtime_taxi_routing
+    cd realtime-taxi-routing
     git submodule update --init --recursive
     ```
 
