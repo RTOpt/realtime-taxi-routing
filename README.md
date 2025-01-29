@@ -175,12 +175,17 @@ For the most up-to-date and detailed installation instructions, please refer to 
 **Note**: The process for obtaining a Gurobi license may change, and the terms of use for Gurobi software are subject to Gurobi's licensing agreement. Ensure you comply with all license terms and conditions.
 
 ## Testing the simulator
+Before running any simulations or tests, ensure that your virtual environment is activated to avoid any dependency issues. For example, if you're using `venv`, you can activate it with:
+```bash
+    cd [project-directory]/realtime-taxi-routing
+    source venv/bin/activate  # On Windows use `venv\Scripts\activate` 
+```
 ### Configuration File
-To run the simulations, the inputs are provided in a JSON file(`inputs.json`). This file specifies whether to run a single test, multiple scenario-based tests or creating plots. The `task_type` key determines the mode:
+To run the simulations, the inputs are provided in a JSON file(`inputs.json`). This file specifies whether to run a single test, multiple scenario-based tests or creating plots. The `task_type` key within this file sets the mode of operation:
 
 - **single_test:** Executes one test instance.
 - **scenarios:** Runs a series of predefined scenario sets.
-- **create_plot:** Create plots for the results of predefined scenarios.
+- **create_plot:** Generates plots based on the results of predefined scenarios.
     
 ### Running a Single Test
 To run a single test:
@@ -195,7 +200,10 @@ This executes a single test as defined in your `inputs.json`.
 
 ### Running Scenarios
 1. Set `task_type` to `"scenarios"` in the `inputs.json` file.
-2. Determine a scenario to run 
+2. Determine a scenario to run. The available options for <SCENARIO_NAME> are:
+   - `"initial_test"`: Used for verifying the installation and familiarizing yourself with the simulation. 
+   - `"TP4_scenario"`: Determines the number of scenarios in TP4.
+   - `"TP1","TP2","TP3","TP4"`: Predefined scenarios corresponding to each TP.
 3. Execute the scenario(s) using:
    ```bash
    python -m src.main -sn <SCENARIO_NAME>
@@ -207,7 +215,14 @@ This executes a single test as defined in your `inputs.json`.
     This will run all parameter combinations defined for the given scenario and save the results to a CSV file in the `data/Instances/Results` directory.
 ### Creating Plots
 1. Set `task_type` to `"create_plot"` in the `inputs.json` file.
-2. Determine the scenario to create the plot(s), ensure results are available and run: 
+2. Determine the scenario to create the plot(s). The available options for <SCENARIO_NAME> are:
+   - `"TP4_scenario"`: Create plots to determine the number of scenarios in TP4.
+   - `"TP1","TP2","TP3","TP4"`: Creates plots corresponding to each TP.
+3. Before generating plots, verify that the results for the selected scenario are available. Specifically, ensure that the following file exists in the `data/Instances/Results` directory.
+    - `<SCENARIO_NAME>_simulation_results.csv`
+    
+   Do not rename or relocate the results file.
+4. Run the following command to create the plot for the selected scenario:
    ```bash
    python -m src.main -sn <SCENARIO_NAME>
    ```
@@ -220,7 +235,7 @@ Configure parameters in `inputs.json` and run:
 The following parameters can be specified in `inputs.json`:
 ### task_type
 - **Description:** Determines the type of execution.
-- **Options:** `single_test`, `scenarios`
+- **Options:** `"single_test"`, `"scenarios"`, `"create_plot"`
 
 ### instances
 - **Description:** Folder name of the instance to test.
