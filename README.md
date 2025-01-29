@@ -195,15 +195,35 @@ To run a single test:
    ```bash
    cd [project-directory]/realtime-taxi-routing
    python -m src.main
+   ```
+    Alternatively, a single test can be executed by passing parameters via the command line and executing `Run_Example.py` file as follows:
 
-This executes a single test as defined in your `inputs.json`.
+    ```bash
+   python -m src.Run_Example -i <INSTANCE> -o <OBJECTIVE> -a <ALGORITHM> -m <SOLUTION_MODE> -tw <TIME_WINDOW>
+   ```
+    available options for input arguments are:<br /><br />
 
+    - `-i, --instance`: Specifies the test instance folder (e.g., `Med_1`).
+    - `-o, --objective`: Defines the optimization objective (`total_profit`, `waiting_time`, `total_customers`).
+    - `-a, --algorithm`: Specifies the algorithm for dispatch optimization (`mip_solver`, `greedy`, `random`, etc.).
+    - `-m, --sol-mode`: Defines request availability mode (`offline`, `fully_online`, `advance_notice`, etc.).
+    - `-tw, --time-window`: Sets the time window in minutes for serving requests (e.g., `3`).<br /><br />
+
+    Additional parameters can be specified as needed to further customize the test execution for some algorithms. These include:<br /><br />
+
+   - `-kp, --known-portion`: Defines the percentage of requests known in advance (0-100%).
+   - `-ns, --nb-scenario`: Specifies the number of scenarios for consensus-based decision-making.
+   - `-cr, --cust-rate`: Determines the average customer arrival rate per node per hour.
+   - `-cp, --consensus-params`: Chooses the type of consensus approach (`qualitative` or `quantitative`).
+   - `-dm, --dest-method`: Sets the destruction method used in re-optimization (`default`, `fix_variables`, `fix_arrivals`, or `bonus`).<br /><br />
+
+   More details regarding the available options can be find in `Run_Example.py` file.
 ### Running Scenarios
 1. Set `task_type` to `"scenarios"` in the `inputs.json` file.
-2. Determine a scenario to run. The available options for <SCENARIO_NAME> are:
+2. Determine a scenario to run. The available options for <SCENARIO_NAME> are:<br /><br />
    - `"initial_test"`: Used for verifying the installation and familiarizing yourself with the simulation. 
    - `"TP4_scenario"`: Determines the number of scenarios in TP4.
-   - `"TP1","TP2","TP3","TP4"`: Predefined scenarios corresponding to each TP.
+   - `"TP1","TP2","TP3","TP4"`: Predefined scenarios corresponding to each TP.<br /><br />
 3. Execute the scenario(s) using:
    ```bash
    python -m src.main -sn <SCENARIO_NAME>
@@ -215,11 +235,11 @@ This executes a single test as defined in your `inputs.json`.
     This will run all parameter combinations defined for the given scenario and save the results to a CSV file in the `data/Instances/Results` directory.
 ### Creating Plots
 1. Set `task_type` to `"create_plot"` in the `inputs.json` file.
-2. Determine the scenario to create the plot(s). The available options for <SCENARIO_NAME> are:
+2. Determine the scenario to create the plot(s). The available options for <SCENARIO_NAME> are:<br /><br />
    - `"TP4_scenario"`: Create plots to determine the number of scenarios in TP4.
-   - `"TP1","TP2","TP3","TP4"`: Creates plots corresponding to each TP.
-3. Before generating plots, verify that the results for the selected scenario are available. Specifically, ensure that the following file exists in the `data/Instances/Results` directory.
-    - `<SCENARIO_NAME>_simulation_results.csv`
+   - `"TP1","TP2","TP3","TP4"`: Creates plots corresponding to each TP.<br /><br />
+3. Before generating plots, verify that the results for the selected scenario are available. Specifically, ensure that the following file exists in the `data/Instances/Results` directory.<br /><br />
+    - `<SCENARIO_NAME>_simulation_results.csv`<br /><br />
     
    Do not rename or relocate the results file.
 4. Run the following command to create the plot for the selected scenario:
