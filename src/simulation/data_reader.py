@@ -65,7 +65,7 @@ class TaxiDataReader(DataReader):
         with open(self.__requests_file_path, 'r') as rFile:
             js_data = json.load(rFile)
             nb_passengers = 1  # Each request corresponds to 1 passenger.
-            random.seed(42)
+            # random.seed(42)
             # Shuffle the indices and select known_portion of them
             indices = list(range(len(js_data)))
             random.shuffle(indices)
