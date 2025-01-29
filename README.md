@@ -176,10 +176,11 @@ For the most up-to-date and detailed installation instructions, please refer to 
 
 ## Testing the simulator
 ### Configuration File
-To run the simulations, the inputs are provided in a JSON file(`inputs.json`). This file specifies whether to run a single test or multiple scenario-based tests. The `task_type` key determines the mode:
+To run the simulations, the inputs are provided in a JSON file(`inputs.json`). This file specifies whether to run a single test, multiple scenario-based tests or creating plots. The `task_type` key determines the mode:
 
 - **single_test:** Executes one test instance.
 - **scenarios:** Runs a series of predefined scenario sets.
+- **create_plot:** Create plots for the results of predefined scenarios.
     
 ### Running a Single Test
 To run a single test:
@@ -188,7 +189,7 @@ To run a single test:
 2. Navigate to the root project directory and run:
    ```bash
    cd [project-directory]/realtime-taxi-routing
-   python main.py
+   python -m src.main
 
 This executes a single test as defined in your `inputs.json`.
 
@@ -197,23 +198,23 @@ This executes a single test as defined in your `inputs.json`.
 2. Determine a scenario to run 
 3. Execute the scenario(s) using:
    ```bash
-   python main.py -sn <SCENARIO_NAME>
+   python -m src.main -sn <SCENARIO_NAME>
    ```
     Replace `<SCENARIO_NAME>` with the name of the scenario you wish to run, for example:
    ```bash
-   python main.py -sn TP2
+   python -m src.main -sn TP2
    ```
     This will run all parameter combinations defined for the given scenario and save the results to a CSV file in the `data/Instances/Results` directory.
 ### Creating Plots
 1. Set `task_type` to `"create_plot"` in the `inputs.json` file.
 2. Determine the scenario to create the plot(s), ensure results are available and run: 
    ```bash
-   python main.py -sn <SCENARIO_NAME>
+   python -m src.main -sn <SCENARIO_NAME>
    ```
 ### Generating Instances
 Configure parameters in `inputs.json` and run:
 ```bash
-   python main.py
+   python -m src.main
    ```
 ## Configuration of Parameters
 The following parameters can be specified in `inputs.json`:
